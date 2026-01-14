@@ -1,15 +1,57 @@
 version: '3.8'
 
 services:
-
-  # 1. API MANAGEMENT
+  # 1. API MANAGER 
   api_manager:
-    build:
-      context: ./API_Service
-      dockerfile: Dockerfile
-    image: api_manager:latest
+    build: ./API_Service
+    container_name: api_manager
+    environment:
+      - API_TOKEN=${API_TOKEN}
+      - LONDON_BOUNDS=${LONDON_BOUNDS}
+      - SCAN_INTERVAL=${SCAN_INTERVAL}
+    depends_on:
+      db_api:
+        condition: service_started 
+    networks:
+      - red_interna
+
+  # 2. DB API 
+  db_api:
+    build: ./DB_API
+    container_name: db_api
+    env_file: .env   
+    depends_on:
+      db:
+        condition: service_healthy 
+    networks:
+      - red_interna
+
+  # 3. DATA BASE
+  db:
+    image: postgres:15-alpine
+    container_name: postgres_db
     env_file: .env
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: ${DB_NAME}
+    
+    # --- HEALTHCHECK ---
+    healthcheck:
+      # See if PostGres is ready.
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 5s   
+      timeout: 5s    
+      retries: 5     
+    # ---------------------------------
+
     volumes:
-      - ./API_Service/api_manager.py:/app/api_manager.py
-    command: sleep infinity
-    restart: "no"
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - red_interna
+
+networks:
+  red_interna:
+
+volumes:
+  postgres_data:

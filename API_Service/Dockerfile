@@ -6,4 +6,4 @@ COPY api_manager.py .
 
 RUN pip install -r requirements.txt
 
-CMD ["python", "-u", "api_manager.py"]
+CMD ["python", "api_manager.py"]
