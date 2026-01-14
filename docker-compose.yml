@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+
+  # 1. API MANAGEMENT
+  api_manager:
+    build:
+      context: ./API_Service
+      dockerfile: Dockerfile
+    image: api_manager:latest
+    env_file: .env
+    volumes:
+      - ./API_Service/api_manager.py:/app/api_manager.py
+    command: sleep infinity
+    restart: "no"
