@@ -13,7 +13,7 @@ services:
       db_api:
         condition: service_started 
     networks:
-      - red_interna
+      - internal_network
 
   # 2. DB API 
   db_api:
@@ -24,7 +24,7 @@ services:
       db:
         condition: service_healthy 
     networks:
-      - red_interna
+      - internal_network
 
   # 3. DATA BASE
   db:
@@ -48,10 +48,26 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
-      - red_interna
+      - internal_network
+
+  # 4. HISTORICAL DATA
+  historical_data:
+    build:  ./HistoricalData
+    container_name: historical_data
+    environment:
+      - API_TOKEN=${API_TOKEN}
+      - DB_API_URL=http://db_api:8000/ingest
+    volumes:
+      - ./HistoricalData/output:/app/output
+    depends_on:
+      db_api:
+        condition: service_started
+    networks:
+      - internal_network
+
 
 networks:
-  red_interna:
+  internal_network:
 
 volumes:
   postgres_data:
