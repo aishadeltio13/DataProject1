@@ -1,0 +1,63 @@
+import os # Read the variables from the .env file.
+import sys # Print so they appear in the Docker console.
+import time # Control time (sleep).
+import requests # Browse the internet.
+import schedule # Task
+from datetime import datetime # Get the exact time and to include it in the logs.
+
+# --- CONFIGURATION ---
+TOKEN = os.getenv("API_TOKEN")
+BOUNDS = os.getenv("LONDON_BOUNDS")
+CHECK_INTERVAL = int(os.getenv("SCAN_INTERVAL")) # Integer number (int) to be used in the timer.
+
+
+# URL DB_API (SECURITY)
+GATEKEEPER_URL = "http://db_api:8000/ingest"  # Docker service name and port to listen on, and the specific endpoint where it handles requests.
+
+MAP_URL = f"https://api.waqi.info/map/bounds/?latlng={BOUNDS}&token={TOKEN}"
+
+# It receives the unique ID (uid) of a station.
+def fetch_station_details(uid):
+    try:
+        return requests.get(f"https://api.waqi.info/feed/@{uid}/?token={TOKEN}", timeout=10).json()
+    except:
+        return None
+
+def run_ingestion_cycle():
+    print(f"\n--- Collecting data to send to the API: {datetime.now()} ---", file=sys.stdout)
+    
+    try:
+        map_res = requests.get(MAP_URL).json()
+        stations = map_res.get("data", [])
+    except Exception as e:
+        print(f"ERROR: {e}")
+        return
+
+    sent_count = 0
+    for station in stations:
+        uid = station.get("uid")
+        time.sleep(0.1)
+        
+        full_res = fetch_station_details(uid) # Fetch all data of that station.
+        
+        if full_res:
+            # --- Send the data to our db_api container ---
+            try:
+                # Call service DB_API
+                response = requests.post(GATEKEEPER_URL, json=full_res) # Convert dictionary to JSON format for network transmission.
+                if response.status_code == 200:
+                    sent_count += 1
+                else:
+                    print(f" Internal API rejected UID {uid}: {response.text}")
+            except Exception as e:
+                print(f" Cannot connect to db_api: {e}")
+
+    print(f"--- END. Sent {sent_count} to service db_api. ---", file=sys.stdout)
+
+if __name__ == "__main__":
+    time.sleep(10) # wait until everything is ready-
+    run_ingestion_cycle()
+    schedule.every(CHECK_INTERVAL).seconds.do(run_ingestion_cycle)
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
