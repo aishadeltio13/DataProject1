@@ -11,10 +11,10 @@ BOUNDS = os.getenv("LONDON_BOUNDS")
 CHECK_INTERVAL = int(os.getenv("SCAN_INTERVAL")) # Integer number (int) to be used in the timer.
 
 
-# URL DB_API (SECURITY)
-GATEKEEPER_URL = "http://db_api:8000/ingest"  # Docker service name and port to listen on, and the specific endpoint where it handles requests.
-
+# URL DB_SECURITY
+GATEKEEPER_URL = "http://db_security:8000/ingest"  # Docker service name and port to listen on, and the specific endpoint where it handles requests.
 MAP_URL = f"https://api.waqi.info/map/bounds/?latlng={BOUNDS}&token={TOKEN}"
+TARGET_POLLUTANTS = ["pm25", "pm10", "no2", "o3", "so2", "co"] # Pollutants to extract.
 
 # It receives the unique ID (uid) of a station.
 def fetch_station_details(uid):
@@ -40,17 +40,9 @@ def run_ingestion_cycle():
         
         full_res = fetch_station_details(uid) # Fetch all data of that station.
         
-        if full_res:
-            # --- Send the data to our db_api container ---
-            try:
-                # Call service DB_API
-                response = requests.post(GATEKEEPER_URL, json=full_res) # Convert dictionary to JSON format for network transmission.
-                if response.status_code == 200:
-                    sent_count += 1
-                else:
-                    print(f" Internal API rejected UID {uid}: {response.text}")
-            except Exception as e:
-                print(f" Cannot connect to db_api: {e}")
+        if full_res and full_res.get("status") == "ok":
+            data = full_res.get("data", {})
+            iaqi = data.get("iaqi", {}) # This is where individual values live
 
             for pollutant in TARGET_POLLUTANTS: # Extract only target pollutants
                 
@@ -86,9 +78,9 @@ def run_ingestion_cycle():
                         if res.status_code == 200:
                             sent_count += 1
                     except Exception as e:
-                        print(f" Connection error sending {pollutant} for UID {uid}")
+                        print(f"   ⚠️ Connection error sending {pollutant} for UID {uid}")
 
-    print(f"---  Cycle End. Sent {sent_count} measurement packets to DB. ---", file=sys.stdout)
+    print(f"--- ✅ Cycle End. Sent {sent_count} measurement packets to DB. ---", file=sys.stdout)
 
 if __name__ == "__main__":
     time.sleep(10) # wait until everything is ready-
