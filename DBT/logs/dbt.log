@@ -1,37 +1,37 @@
-[0m14:27:26.654090 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7cb2b0706a50>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7cb2b0b13210>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7cb2b0706550>]}
+[0m16:19:47.552991 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x709497db6210>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x709498c1f1d0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x709497db6250>]}
 
 
-============================== 14:27:26.679937 | d2e94d48-030e-4119-956a-61d7140b7e50 ==============================
-[0m14:27:26.679937 [info ] [MainThread]: Running with dbt=1.11.2
-[0m14:27:26.682059 [debug] [MainThread]: running dbt with arguments {'invocation_command': 'dbt run', 'no_print': 'None', 'use_experimental_parser': 'False', 'write_json': 'True', 'version_check': 'True', 'send_anonymous_usage_stats': 'True', 'quiet': 'False', 'log_path': '/app/logs', 'log_format': 'default', 'static_parser': 'True', 'fail_fast': 'False', 'printer_width': '80', 'cache_selected_only': 'False', 'indirect_selection': 'eager', 'use_colors': 'True', 'log_cache_events': 'False', 'debug': 'False', 'target_path': 'None', 'partial_parse': 'True', 'warn_error': 'None', 'warn_error_options': 'WarnErrorOptionsV2(error=[], warn=[], silence=[])', 'introspect': 'True', 'profiles_dir': '/app', 'empty': 'False'}
-[0m14:27:26.914486 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'project_id', 'label': 'd2e94d48-030e-4119-956a-61d7140b7e50', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7cb2b0633e50>]}
-[0m14:27:26.999841 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'adapter_info', 'label': 'd2e94d48-030e-4119-956a-61d7140b7e50', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7cb2b3602850>]}
-[0m14:27:27.001838 [info ] [MainThread]: Registered adapter: postgres=1.10.0
-[0m14:27:27.096489 [debug] [MainThread]: checksum: 3d40d8bbe1bef07db1c24822f2dbfff8bc07f2a48ed4fe2658a40653aec0b54b, vars: {}, profile: , target: , version: 1.11.2
-[0m14:27:27.102700 [info ] [MainThread]: Unable to do partial parsing because saved manifest not found. Starting full parse.
-[0m14:27:27.104418 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'partial_parser', 'label': 'd2e94d48-030e-4119-956a-61d7140b7e50', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7cb2b062bed0>]}
-[0m14:27:29.167288 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'load_project', 'label': 'd2e94d48-030e-4119-956a-61d7140b7e50', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7cb2aed87790>]}
-[0m14:27:29.306264 [debug] [MainThread]: Wrote artifact WritableManifest to /app/target/manifest.json
-[0m14:27:29.328047 [debug] [MainThread]: Wrote artifact SemanticManifest to /app/target/semantic_manifest.json
-[0m14:27:29.379932 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'resource_counts', 'label': 'd2e94d48-030e-4119-956a-61d7140b7e50', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7cb2ae5db0d0>]}
-[0m14:27:29.382110 [info ] [MainThread]: Found 1 model, 1 source, 464 macros
-[0m14:27:29.384238 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'runnable_timing', 'label': 'd2e94d48-030e-4119-956a-61d7140b7e50', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7cb2b1774790>]}
-[0m14:27:29.388071 [info ] [MainThread]: 
-[0m14:27:29.390196 [info ] [MainThread]: Concurrency: 1 threads (target='dev')
-[0m14:27:29.392290 [info ] [MainThread]: 
-[0m14:27:29.394784 [debug] [MainThread]: Acquiring new postgres connection 'master'
-[0m14:27:29.398119 [debug] [ThreadPool]: Acquiring new postgres connection 'list_air_quality_db'
-[0m14:27:29.468433 [debug] [ThreadPool]: Using postgres connection "list_air_quality_db"
-[0m14:27:29.470188 [debug] [ThreadPool]: On list_air_quality_db: /* {"app": "dbt", "dbt_version": "1.11.2", "profile_name": "air_project_london", "target_name": "dev", "connection_name": "list_air_quality_db"} */
+============================== 16:19:47.563272 | 65f80dd1-91b1-41a2-92d2-6289207b160f ==============================
+[0m16:19:47.563272 [info ] [MainThread]: Running with dbt=1.11.2
+[0m16:19:47.564550 [debug] [MainThread]: running dbt with arguments {'send_anonymous_usage_stats': 'True', 'profiles_dir': '/app', 'log_path': '/app/logs', 'target_path': 'None', 'debug': 'False', 'use_experimental_parser': 'False', 'introspect': 'True', 'cache_selected_only': 'False', 'fail_fast': 'False', 'static_parser': 'True', 'indirect_selection': 'eager', 'version_check': 'True', 'empty': 'False', 'write_json': 'True', 'printer_width': '80', 'quiet': 'False', 'partial_parse': 'True', 'no_print': 'None', 'log_cache_events': 'False', 'invocation_command': 'dbt run', 'warn_error': 'None', 'warn_error_options': 'WarnErrorOptionsV2(error=[], warn=[], silence=[])', 'use_colors': 'True', 'log_format': 'default'}
+[0m16:19:47.735994 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'project_id', 'label': '65f80dd1-91b1-41a2-92d2-6289207b160f', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x709497bf19d0>]}
+[0m16:19:47.790007 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'adapter_info', 'label': '65f80dd1-91b1-41a2-92d2-6289207b160f', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x70949acbaa50>]}
+[0m16:19:47.791457 [info ] [MainThread]: Registered adapter: postgres=1.10.0
+[0m16:19:47.858731 [debug] [MainThread]: checksum: 3d40d8bbe1bef07db1c24822f2dbfff8bc07f2a48ed4fe2658a40653aec0b54b, vars: {}, profile: , target: , version: 1.11.2
+[0m16:19:47.990493 [debug] [MainThread]: Partial parsing enabled: 0 files deleted, 0 files added, 1 files changed.
+[0m16:19:47.991809 [debug] [MainThread]: Partial parsing: updated file: air_project_london://models/staging/test_connection.sql
+[0m16:19:48.224250 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'load_project', 'label': '65f80dd1-91b1-41a2-92d2-6289207b160f', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x709496948390>]}
+[0m16:19:48.293355 [debug] [MainThread]: Wrote artifact WritableManifest to /app/target/manifest.json
+[0m16:19:48.298528 [debug] [MainThread]: Wrote artifact SemanticManifest to /app/target/semantic_manifest.json
+[0m16:19:48.373071 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'resource_counts', 'label': '65f80dd1-91b1-41a2-92d2-6289207b160f', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x70949694a810>]}
+[0m16:19:48.374255 [info ] [MainThread]: Found 1 model, 1 source, 464 macros
+[0m16:19:48.375593 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'runnable_timing', 'label': '65f80dd1-91b1-41a2-92d2-6289207b160f', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x709495d9f210>]}
+[0m16:19:48.378349 [info ] [MainThread]: 
+[0m16:19:48.379678 [info ] [MainThread]: Concurrency: 1 threads (target='dev')
+[0m16:19:48.380914 [info ] [MainThread]: 
+[0m16:19:48.382513 [debug] [MainThread]: Acquiring new postgres connection 'master'
+[0m16:19:48.385002 [debug] [ThreadPool]: Acquiring new postgres connection 'list_air_quality_db'
+[0m16:19:48.447232 [debug] [ThreadPool]: Using postgres connection "list_air_quality_db"
+[0m16:19:48.448462 [debug] [ThreadPool]: On list_air_quality_db: /* {"app": "dbt", "dbt_version": "1.11.2", "profile_name": "air_project_london", "target_name": "dev", "connection_name": "list_air_quality_db"} */
 
     select distinct nspname from pg_namespace
   
-[0m14:27:29.471832 [debug] [ThreadPool]: Opening a new connection, currently in state init
-[0m14:27:29.518160 [debug] [ThreadPool]: SQL status: SELECT 4 in 0.046 seconds
-[0m14:27:29.522103 [debug] [ThreadPool]: On list_air_quality_db: Close
-[0m14:27:29.525760 [debug] [ThreadPool]: Re-using an available connection from the pool (formerly list_air_quality_db, now list_air_quality_db_public)
-[0m14:27:29.539067 [debug] [ThreadPool]: Using postgres connection "list_air_quality_db_public"
-[0m14:27:29.540919 [debug] [ThreadPool]: On list_air_quality_db_public: /* {"app": "dbt", "dbt_version": "1.11.2", "profile_name": "air_project_london", "target_name": "dev", "connection_name": "list_air_quality_db_public"} */
+[0m16:19:48.449624 [debug] [ThreadPool]: Opening a new connection, currently in state init
+[0m16:19:48.475605 [debug] [ThreadPool]: SQL status: SELECT 4 in 0.026 seconds
+[0m16:19:48.477776 [debug] [ThreadPool]: On list_air_quality_db: Close
+[0m16:19:48.479975 [debug] [ThreadPool]: Re-using an available connection from the pool (formerly list_air_quality_db, now list_air_quality_db_public)
+[0m16:19:48.486007 [debug] [ThreadPool]: Using postgres connection "list_air_quality_db_public"
+[0m16:19:48.486918 [debug] [ThreadPool]: On list_air_quality_db_public: /* {"app": "dbt", "dbt_version": "1.11.2", "profile_name": "air_project_london", "target_name": "dev", "connection_name": "list_air_quality_db_public"} */
 select
       'air_quality_db' as database,
       tablename as name,
@@ -56,12 +56,12 @@ select
     from pg_matviews
     where schemaname ilike 'public'
   
-[0m14:27:29.542900 [debug] [ThreadPool]: Opening a new connection, currently in state closed
-[0m14:27:29.588657 [debug] [ThreadPool]: SQL status: SELECT 1 in 0.046 seconds
-[0m14:27:29.591897 [debug] [ThreadPool]: On list_air_quality_db_public: ROLLBACK
-[0m14:27:29.593811 [debug] [ThreadPool]: On list_air_quality_db_public: Close
-[0m14:27:29.603858 [debug] [MainThread]: Using postgres connection "master"
-[0m14:27:29.605607 [debug] [MainThread]: On master: /* {"app": "dbt", "dbt_version": "1.11.2", "profile_name": "air_project_london", "target_name": "dev", "connection_name": "master"} */
+[0m16:19:48.487846 [debug] [ThreadPool]: Opening a new connection, currently in state closed
+[0m16:19:48.506655 [debug] [ThreadPool]: SQL status: SELECT 2 in 0.019 seconds
+[0m16:19:48.508630 [debug] [ThreadPool]: On list_air_quality_db_public: ROLLBACK
+[0m16:19:48.509828 [debug] [ThreadPool]: On list_air_quality_db_public: Close
+[0m16:19:48.514368 [debug] [MainThread]: Using postgres connection "master"
+[0m16:19:48.515391 [debug] [MainThread]: On master: /* {"app": "dbt", "dbt_version": "1.11.2", "profile_name": "air_project_london", "target_name": "dev", "connection_name": "master"} */
 select distinct
         dependent_namespace.nspname as dependent_schema,
         dependent_class.relname as dependent_name,
@@ -95,24 +95,24 @@ select distinct
 
     order by
         dependent_schema, dependent_name, referenced_schema, referenced_name;
-[0m14:27:29.607121 [debug] [MainThread]: Opening a new connection, currently in state init
-[0m14:27:29.647005 [debug] [MainThread]: SQL status: SELECT 0 in 0.040 seconds
-[0m14:27:29.649491 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'runnable_timing', 'label': 'd2e94d48-030e-4119-956a-61d7140b7e50', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7cb2b0801a90>]}
-[0m14:27:29.651108 [debug] [MainThread]: On master: ROLLBACK
-[0m14:27:29.652735 [debug] [MainThread]: On master: COMMIT
-[0m14:27:29.653939 [debug] [MainThread]: Using postgres connection "master"
-[0m14:27:29.655633 [debug] [MainThread]: On master: COMMIT
-[0m14:27:29.657575 [debug] [MainThread]: SQL status: COMMIT in 0.001 seconds
-[0m14:27:29.658887 [debug] [MainThread]: On master: Close
-[0m14:27:29.668569 [debug] [Thread-1 (]: Began running node model.air_project_london.test_connection
-[0m14:27:29.670597 [info ] [Thread-1 (]: 1 of 1 START sql table model public.test_connection ............................ [RUN]
-[0m14:27:29.672459 [debug] [Thread-1 (]: Re-using an available connection from the pool (formerly list_air_quality_db_public, now model.air_project_london.test_connection)
-[0m14:27:29.674211 [debug] [Thread-1 (]: Began compiling node model.air_project_london.test_connection
-[0m14:27:29.686425 [debug] [Thread-1 (]: Writing injected SQL for node "model.air_project_london.test_connection"
-[0m14:27:29.726054 [debug] [Thread-1 (]: Began executing node model.air_project_london.test_connection
-[0m14:27:29.788056 [debug] [Thread-1 (]: Writing runtime sql for node "model.air_project_london.test_connection"
-[0m14:27:29.825582 [debug] [Thread-1 (]: Using postgres connection "model.air_project_london.test_connection"
-[0m14:27:29.827543 [debug] [Thread-1 (]: On model.air_project_london.test_connection: /* {"app": "dbt", "dbt_version": "1.11.2", "profile_name": "air_project_london", "target_name": "dev", "node_id": "model.air_project_london.test_connection"} */
+[0m16:19:48.516155 [debug] [MainThread]: Opening a new connection, currently in state init
+[0m16:19:48.534761 [debug] [MainThread]: SQL status: SELECT 0 in 0.019 seconds
+[0m16:19:48.536749 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'runnable_timing', 'label': '65f80dd1-91b1-41a2-92d2-6289207b160f', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x70949691c850>]}
+[0m16:19:48.538100 [debug] [MainThread]: On master: ROLLBACK
+[0m16:19:48.539282 [debug] [MainThread]: On master: COMMIT
+[0m16:19:48.540292 [debug] [MainThread]: Using postgres connection "master"
+[0m16:19:48.541119 [debug] [MainThread]: On master: COMMIT
+[0m16:19:48.542240 [debug] [MainThread]: SQL status: COMMIT in 0.000 seconds
+[0m16:19:48.542858 [debug] [MainThread]: On master: Close
+[0m16:19:48.547815 [debug] [Thread-1 (]: Began running node model.air_project_london.test_connection
+[0m16:19:48.548836 [info ] [Thread-1 (]: 1 of 1 START sql table model public.test_connection ............................ [RUN]
+[0m16:19:48.549858 [debug] [Thread-1 (]: Re-using an available connection from the pool (formerly list_air_quality_db_public, now model.air_project_london.test_connection)
+[0m16:19:48.550676 [debug] [Thread-1 (]: Began compiling node model.air_project_london.test_connection
+[0m16:19:48.559383 [debug] [Thread-1 (]: Writing injected SQL for node "model.air_project_london.test_connection"
+[0m16:19:48.567399 [debug] [Thread-1 (]: Began executing node model.air_project_london.test_connection
+[0m16:19:48.600754 [debug] [Thread-1 (]: Writing runtime sql for node "model.air_project_london.test_connection"
+[0m16:19:48.609928 [debug] [Thread-1 (]: Using postgres connection "model.air_project_london.test_connection"
+[0m16:19:48.611124 [debug] [Thread-1 (]: On model.air_project_london.test_connection: /* {"app": "dbt", "dbt_version": "1.11.2", "profile_name": "air_project_london", "target_name": "dev", "node_id": "model.air_project_london.test_connection"} */
 
   
     
@@ -126,59 +126,63 @@ select distinct
     
 
 WITH raw_data AS (
-    -- Leemos de la fuente definida arriba
+    -- Read
     SELECT * FROM "air_quality_db"."public"."london_raw_data"
 )
 
 SELECT
     id,
     ingestion_time,
-    -- Extraemos un par de campos del JSON para probar
+    -- Just trying :) 
     raw_data->>'station_name' as station,
     raw_data->>'parameter' as pollutant,
     (raw_data->>'value')::numeric as value
 FROM raw_data
   );
   
-[0m14:27:29.829347 [debug] [Thread-1 (]: Opening a new connection, currently in state closed
-[0m14:27:30.457882 [debug] [Thread-1 (]: SQL status: SELECT 114346 in 0.628 seconds
-[0m14:27:30.471739 [debug] [Thread-1 (]: Using postgres connection "model.air_project_london.test_connection"
-[0m14:27:30.473186 [debug] [Thread-1 (]: On model.air_project_london.test_connection: /* {"app": "dbt", "dbt_version": "1.11.2", "profile_name": "air_project_london", "target_name": "dev", "node_id": "model.air_project_london.test_connection"} */
+[0m16:19:48.611921 [debug] [Thread-1 (]: Opening a new connection, currently in state closed
+[0m16:19:49.458048 [debug] [Thread-1 (]: SQL status: SELECT 114509 in 0.846 seconds
+[0m16:19:49.468646 [debug] [Thread-1 (]: Using postgres connection "model.air_project_london.test_connection"
+[0m16:19:49.470132 [debug] [Thread-1 (]: On model.air_project_london.test_connection: /* {"app": "dbt", "dbt_version": "1.11.2", "profile_name": "air_project_london", "target_name": "dev", "node_id": "model.air_project_london.test_connection"} */
+alter table "air_quality_db"."public"."test_connection" rename to "test_connection__dbt_backup"
+[0m16:19:49.472505 [debug] [Thread-1 (]: SQL status: ALTER TABLE in 0.001 seconds
+[0m16:19:49.475514 [debug] [Thread-1 (]: Using postgres connection "model.air_project_london.test_connection"
+[0m16:19:49.476242 [debug] [Thread-1 (]: On model.air_project_london.test_connection: /* {"app": "dbt", "dbt_version": "1.11.2", "profile_name": "air_project_london", "target_name": "dev", "node_id": "model.air_project_london.test_connection"} */
 alter table "air_quality_db"."public"."test_connection__dbt_tmp" rename to "test_connection"
-[0m14:27:30.476153 [debug] [Thread-1 (]: SQL status: ALTER TABLE in 0.001 seconds
-[0m14:27:30.498132 [debug] [Thread-1 (]: On model.air_project_london.test_connection: COMMIT
-[0m14:27:30.500223 [debug] [Thread-1 (]: Using postgres connection "model.air_project_london.test_connection"
-[0m14:27:30.501929 [debug] [Thread-1 (]: On model.air_project_london.test_connection: COMMIT
-[0m14:27:30.518423 [debug] [Thread-1 (]: SQL status: COMMIT in 0.015 seconds
-[0m14:27:30.527861 [debug] [Thread-1 (]: Applying DROP to: "air_quality_db"."public"."test_connection__dbt_backup"
-[0m14:27:30.536434 [debug] [Thread-1 (]: Using postgres connection "model.air_project_london.test_connection"
-[0m14:27:30.538097 [debug] [Thread-1 (]: On model.air_project_london.test_connection: /* {"app": "dbt", "dbt_version": "1.11.2", "profile_name": "air_project_london", "target_name": "dev", "node_id": "model.air_project_london.test_connection"} */
+[0m16:19:49.477353 [debug] [Thread-1 (]: SQL status: ALTER TABLE in 0.000 seconds
+[0m16:19:49.491957 [debug] [Thread-1 (]: On model.air_project_london.test_connection: COMMIT
+[0m16:19:49.493285 [debug] [Thread-1 (]: Using postgres connection "model.air_project_london.test_connection"
+[0m16:19:49.494333 [debug] [Thread-1 (]: On model.air_project_london.test_connection: COMMIT
+[0m16:19:49.502027 [debug] [Thread-1 (]: SQL status: COMMIT in 0.007 seconds
+[0m16:19:49.508017 [debug] [Thread-1 (]: Applying DROP to: "air_quality_db"."public"."test_connection__dbt_backup"
+[0m16:19:49.513241 [debug] [Thread-1 (]: Using postgres connection "model.air_project_london.test_connection"
+[0m16:19:49.514287 [debug] [Thread-1 (]: On model.air_project_london.test_connection: /* {"app": "dbt", "dbt_version": "1.11.2", "profile_name": "air_project_london", "target_name": "dev", "node_id": "model.air_project_london.test_connection"} */
 drop table if exists "air_quality_db"."public"."test_connection__dbt_backup" cascade
-[0m14:27:30.540458 [debug] [Thread-1 (]: SQL status: DROP TABLE in 0.001 seconds
-[0m14:27:30.544810 [debug] [Thread-1 (]: On model.air_project_london.test_connection: Close
-[0m14:27:30.548514 [debug] [Thread-1 (]: Sending event: {'category': 'dbt', 'action': 'run_model', 'label': 'd2e94d48-030e-4119-956a-61d7140b7e50', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7cb2ac3e7c50>]}
-[0m14:27:30.550983 [info ] [Thread-1 (]: 1 of 1 OK created sql table model public.test_connection ....................... [[32mSELECT 114346[0m in 0.87s]
-[0m14:27:30.553040 [debug] [Thread-1 (]: Finished running node model.air_project_london.test_connection
-[0m14:27:30.556451 [debug] [MainThread]: On master: COMMIT
-[0m14:27:30.558177 [debug] [MainThread]: Using postgres connection "master"
-[0m14:27:30.559887 [debug] [MainThread]: On master: COMMIT
-[0m14:27:30.561523 [debug] [MainThread]: Opening a new connection, currently in state closed
-[0m14:27:30.580226 [debug] [MainThread]: SQL status: COMMIT in 0.019 seconds
-[0m14:27:30.582136 [debug] [MainThread]: On master: Close
-[0m14:27:30.584442 [debug] [MainThread]: Connection 'master' was properly closed.
-[0m14:27:30.586139 [debug] [MainThread]: Connection 'model.air_project_london.test_connection' was properly closed.
-[0m14:27:30.587855 [info ] [MainThread]: 
-[0m14:27:30.589464 [info ] [MainThread]: Finished running 1 table model in 0 hours 0 minutes and 1.19 seconds (1.19s).
-[0m14:27:30.591620 [debug] [MainThread]: Command end result
-[0m14:27:30.657058 [debug] [MainThread]: Wrote artifact WritableManifest to /app/target/manifest.json
-[0m14:27:30.668921 [debug] [MainThread]: Wrote artifact SemanticManifest to /app/target/semantic_manifest.json
-[0m14:27:30.688464 [debug] [MainThread]: Wrote artifact RunExecutionResult to /app/target/run_results.json
-[0m14:27:30.690644 [info ] [MainThread]: 
-[0m14:27:30.692881 [info ] [MainThread]: [32mCompleted successfully[0m
-[0m14:27:30.694974 [info ] [MainThread]: 
-[0m14:27:30.697130 [info ] [MainThread]: Done. PASS=1 WARN=0 ERROR=0 SKIP=0 NO-OP=0 TOTAL=1
-[0m14:27:30.712590 [debug] [MainThread]: Resource report: {"command_name": "run", "command_success": true, "command_wall_clock_time": 4.1543536, "process_in_blocks": "5344", "process_kernel_time": 0.493619, "process_mem_max_rss": "131192", "process_out_blocks": "2240", "process_user_time": 5.036521}
-[0m14:27:30.721255 [debug] [MainThread]: Command `dbt run` succeeded at 14:27:30.720791 after 4.16 seconds
-[0m14:27:30.730669 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7cb2b069f950>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7cb2b06cce50>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7cb2b1552c10>]}
-[0m14:27:30.737992 [debug] [MainThread]: Flushing usage events
-[0m14:27:31.472820 [debug] [MainThread]: An error was encountered while trying to flush usage events
+[0m16:19:49.526501 [debug] [Thread-1 (]: SQL status: DROP TABLE in 0.011 seconds
+[0m16:19:49.529568 [debug] [Thread-1 (]: On model.air_project_london.test_connection: Close
+[0m16:19:49.531946 [debug] [Thread-1 (]: Sending event: {'category': 'dbt', 'action': 'run_model', 'label': '65f80dd1-91b1-41a2-92d2-6289207b160f', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x709494281250>]}
+[0m16:19:49.533482 [info ] [Thread-1 (]: 1 of 1 OK created sql table model public.test_connection ....................... [[32mSELECT 114509[0m in 0.98s]
+[0m16:19:49.535024 [debug] [Thread-1 (]: Finished running node model.air_project_london.test_connection
+[0m16:19:49.537137 [debug] [MainThread]: On master: COMMIT
+[0m16:19:49.537830 [debug] [MainThread]: Using postgres connection "master"
+[0m16:19:49.538478 [debug] [MainThread]: On master: COMMIT
+[0m16:19:49.539093 [debug] [MainThread]: Opening a new connection, currently in state closed
+[0m16:19:49.548542 [debug] [MainThread]: SQL status: COMMIT in 0.009 seconds
+[0m16:19:49.549865 [debug] [MainThread]: On master: Close
+[0m16:19:49.551052 [debug] [MainThread]: Connection 'master' was properly closed.
+[0m16:19:49.551993 [debug] [MainThread]: Connection 'model.air_project_london.test_connection' was properly closed.
+[0m16:19:49.553062 [info ] [MainThread]: 
+[0m16:19:49.554079 [info ] [MainThread]: Finished running 1 table model in 0 hours 0 minutes and 1.17 seconds (1.17s).
+[0m16:19:49.555787 [debug] [MainThread]: Command end result
+[0m16:19:49.589910 [debug] [MainThread]: Wrote artifact WritableManifest to /app/target/manifest.json
+[0m16:19:49.597683 [debug] [MainThread]: Wrote artifact SemanticManifest to /app/target/semantic_manifest.json
+[0m16:19:49.609531 [debug] [MainThread]: Wrote artifact RunExecutionResult to /app/target/run_results.json
+[0m16:19:49.610738 [info ] [MainThread]: 
+[0m16:19:49.611880 [info ] [MainThread]: [32mCompleted successfully[0m
+[0m16:19:49.612974 [info ] [MainThread]: 
+[0m16:19:49.614094 [info ] [MainThread]: Done. PASS=1 WARN=0 ERROR=0 SKIP=0 NO-OP=0 TOTAL=1
+[0m16:19:49.616072 [debug] [MainThread]: Resource report: {"command_name": "run", "command_success": true, "command_wall_clock_time": 2.1308, "process_in_blocks": "0", "process_kernel_time": 0.649465, "process_mem_max_rss": "130000", "process_out_blocks": "2240", "process_user_time": 2.079882}
+[0m16:19:49.617075 [debug] [MainThread]: Command `dbt run` succeeded at 16:19:49.616953 after 2.13 seconds
+[0m16:19:49.617824 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x709497d4b790>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x70949c6ec610>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x709497db5510>]}
+[0m16:19:49.618602 [debug] [MainThread]: Flushing usage events
+[0m16:19:50.114199 [debug] [MainThread]: An error was encountered while trying to flush usage events

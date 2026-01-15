@@ -11,14 +11,14 @@
     
 
 WITH raw_data AS (
-    -- Leemos de la fuente definida arriba
+    -- Read
     SELECT * FROM "air_quality_db"."public"."london_raw_data"
 )
 
 SELECT
     id,
     ingestion_time,
-    -- Extraemos un par de campos del JSON para probar
+    -- Just trying :) 
     raw_data->>'station_name' as station,
     raw_data->>'parameter' as pollutant,
     (raw_data->>'value')::numeric as value
