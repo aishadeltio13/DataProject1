@@ -1,6 +1,1 @@
 # DataProject1
-
-KEEP IT SIMPLE (Aisha)
-
-PLAN SMARTER, NOT HARDER    (GFT)
-

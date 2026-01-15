@@ -1,29 +1,30 @@
+version: '3.8'
+
 services:
   # 1. API MANAGER 
   api_manager:
     build: ./API_Service
     container_name: api_manager
     environment:
-      - PYTHONUNBUFFERED=1
       - API_TOKEN=${API_TOKEN}
       - LONDON_BOUNDS=${LONDON_BOUNDS}
       - SCAN_INTERVAL=${SCAN_INTERVAL}
     depends_on:
-      db_security:
+      db_api:
         condition: service_started 
     networks:
-      - internal_network
+      - red_interna
 
-  # 2. DB SECURITY 
-  db_security:
-    build: ./DB_Security
-    container_name: db_security
+  # 2. DB API 
+  db_api:
+    build: ./DB_API
+    container_name: db_api
     env_file: .env   
     depends_on:
       db:
         condition: service_healthy 
     networks:
-      - internal_network
+      - red_interna
 
   # 3. DATA BASE
   db:
@@ -37,34 +38,20 @@ services:
     
     # --- HEALTHCHECK ---
     healthcheck:
-      # Verify that the user and the database exist and are responding
+      # See if PostGres is ready.
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
       interval: 5s   
       timeout: 5s    
       retries: 5     
-    # -------------------
+    # ---------------------------------
 
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
-      - internal_network
-
-  # 4. HISTORICAL MANAGER
-  historical_manager:
-    build:  ./HistoricalData
-    container_name: historical_manager
-    environment:
-      - PYTHONUNBUFFERED=1
-      - OPENAQ_API_KEY=${OPENAQ_API_KEY}
-      - OPENAQ_BOUNDS=${OPENAQ_BOUNDS}
-    depends_on:
-      db_security:
-        condition: service_started
-    networks:
-      - internal_network
+      - red_interna
 
 networks:
-  internal_network:
+  red_interna:
 
 volumes:
   postgres_data:
