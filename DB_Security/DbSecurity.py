@@ -4,7 +4,7 @@ import psycopg2 # Driver: Connect and send commands to PostgreSQL.
 from fastapi import FastAPI, HTTPException, Request # FastAPI: web server framework; HTTPException: for standard errors (e.g., 404, 500); Request: allows receiving the raw client request, enabling acceptance of any JSON.
 
 # --- INICIALIZACIÓN ---
-app = FastAPI(title="London Guard") # The app variable is what the uvicorn DbApi:app command looks for the Dockerfile.
+app = FastAPI(title="London Guard") # The app variable is what the uvicorn DbSecurity:app command looks for the Dockerfile.
 
 # --- CONFIG DB ---
 DB_HOST = os.getenv("DB_HOST")
