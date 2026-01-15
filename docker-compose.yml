@@ -49,27 +49,13 @@ services:
     networks:
       - internal_network
 
-  # 4. HISTORICAL MANAGER
-  historical_manager:
-    build:  ./HistoricalData
-    container_name: historical_manager
-    environment:
-      - PYTHONUNBUFFERED=1
-      - OPENAQ_API_KEY=${OPENAQ_API_KEY}
-      - OPENAQ_BOUNDS=${OPENAQ_BOUNDS}
-    depends_on:
-      db_security:
-        condition: service_started
-    networks:
-      - internal_network
-
     # 4. TRANSFORMATION (DBT)
   dbt_transform:
-    build: ./API_Service  # Reuse the Python build that already has dbt installed
+    build: ./DBT  
     container_name: dbt_transform
     working_dir: /app
     volumes:
-      - ./:/app          
+      - ./DBT:/app          
     environment:
       - DB_USER=${DB_USER}
       - DB_PASS=${DB_PASS}
@@ -80,7 +66,7 @@ services:
       db:
         condition: service_healthy
     networks:
-      - red_interna
+      - internal_network
     # We keep it turned on so we can enter and execute commands
     entrypoint: ["tail", "-f", "/dev/null"]
 

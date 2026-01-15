@@ -78,9 +78,9 @@ def run_ingestion_cycle():
                         if res.status_code == 200:
                             sent_count += 1
                     except Exception as e:
-                        print(f"   ⚠️ Connection error sending {pollutant} for UID {uid}")
+                        print(f" Connection error sending {pollutant} for UID {uid}")
 
-    print(f"--- ✅ Cycle End. Sent {sent_count} measurement packets to DB. ---", file=sys.stdout)
+    print(f"---  Cycle End. Sent {sent_count} measurement packets to DB. ---", file=sys.stdout)
 
 if __name__ == "__main__":
     time.sleep(10) # wait until everything is ready-
