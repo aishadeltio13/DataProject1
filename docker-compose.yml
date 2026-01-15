@@ -63,6 +63,27 @@ services:
     networks:
       - internal_network
 
+    # 4. TRANSFORMATION (DBT)
+  dbt_transform:
+    build: ./API_Service  # Reuse the Python build that already has dbt installed
+    container_name: dbt_transform
+    working_dir: /app
+    volumes:
+      - ./:/app          
+    environment:
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
+      - DB_NAME=${DB_NAME}
+      - DB_HOST=db        
+      - DBT_PROFILES_DIR=/app
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - red_interna
+    # We keep it turned on so we can enter and execute commands
+    entrypoint: ["tail", "-f", "/dev/null"]
+
 networks:
   internal_network:
 

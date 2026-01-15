@@ -1,0 +1,7 @@
+name: 'air_project_london'
+version: '1.0.0'
+config-version: 2
+
+profile: 'air_project_london' 
+
+model-paths: ["models"]
