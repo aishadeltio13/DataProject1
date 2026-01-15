@@ -7,4 +7,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Data will be saved in this directory
 RUN mkdir -p /app/output
 
-CMD ["python", "historical_loader.py"]
+CMD ["python", "historical_manager.py"]
