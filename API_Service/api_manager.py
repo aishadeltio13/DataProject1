@@ -52,7 +52,43 @@ def run_ingestion_cycle():
             except Exception as e:
                 print(f" Cannot connect to db_api: {e}")
 
-    print(f"--- END. Sent {sent_count} to service db_api. ---", file=sys.stdout)
+            for pollutant in TARGET_POLLUTANTS: # Extract only target pollutants
+                
+                # Check if this station measures this pollutant
+                if pollutant in iaqi:
+                    reading_data = iaqi[pollutant]
+                    val = reading_data.get("v")
+                    
+                    # STANDARDIZED PAYLOAD 
+                    payload = {
+                        "source": "waqi_realtime",
+                        "station_uid": data.get("idx"), 
+                        "station_name": data.get("city", {}).get("name"),
+                        
+                        # Geo-Coordinates 
+                        "lat": data.get("city", {}).get("geo", [])[0],
+                        "lon": data.get("city", {}).get("geo", [])[1],
+                        
+                        "date": data.get("time", {}).get("s"), # Reading Time
+                        
+                        # The Data
+                        "parameter": pollutant,
+                        "value": str(val),
+                        "unit": "aqi", 
+                        
+                        # We keep a small snippet of the original just in case
+                        "full_json": reading_data 
+                    }
+
+                    # 4. Send to DbSecurity
+                    try:
+                        res = requests.post(GATEKEEPER_URL, json=payload, timeout=2)
+                        if res.status_code == 200:
+                            sent_count += 1
+                    except Exception as e:
+                        print(f" Connection error sending {pollutant} for UID {uid}")
+
+    print(f"---  Cycle End. Sent {sent_count} measurement packets to DB. ---", file=sys.stdout)
 
 if __name__ == "__main__":
     time.sleep(10) # wait until everything is ready-

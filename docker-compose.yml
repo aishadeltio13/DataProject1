@@ -1,4 +1,4 @@
-version: '3.8'
+
 
 services:
   # 1. API MANAGER 
@@ -48,7 +48,28 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
-      - red_interna
+      - internal_network
+
+    # 4. TRANSFORMATION (DBT)
+  dbt_transform:
+    build: ./DBT  
+    container_name: dbt_transform
+    working_dir: /app
+    volumes:
+      - ./DBT:/app          
+    environment:
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
+      - DB_NAME=${DB_NAME}
+      - DB_HOST=db        
+      - DBT_PROFILES_DIR=/app
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - internal_network
+    # We keep it turned on so we can enter and execute commands
+    entrypoint: ["tail", "-f", "/dev/null"]
 
 networks:
   red_interna:
