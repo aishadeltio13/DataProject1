@@ -53,7 +53,7 @@ def run_ingestion_cycle():
                     
                     # STANDARDIZED PAYLOAD 
                     payload = {
-                        "source": "waqi_realtime",
+                        "source": "realtime",
                         "station_uid": data.get("idx"), 
                         "station_name": data.get("city", {}).get("name"),
                         
@@ -68,7 +68,6 @@ def run_ingestion_cycle():
                         "value": str(val),
                         "unit": "aqi", 
                         
-                        # We keep a small snippet of the original just in case
                         "full_json": reading_data 
                     }
 
@@ -78,9 +77,9 @@ def run_ingestion_cycle():
                         if res.status_code == 200:
                             sent_count += 1
                     except Exception as e:
-                        print(f"   ⚠️ Connection error sending {pollutant} for UID {uid}")
+                        print(f"Connection error sending {pollutant} for UID {uid}")
 
-    print(f"--- ✅ Cycle End. Sent {sent_count} measurement packets to DB. ---", file=sys.stdout)
+    print(f"--- Cycle End. Sent {sent_count} measurement packets to DB. ---", file=sys.stdout)
 
 if __name__ == "__main__":
     time.sleep(10) # wait until everything is ready-
