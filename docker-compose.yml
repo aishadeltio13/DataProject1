@@ -1,78 +1,68 @@
-
-
 services:
-  # 1. API MANAGER 
+  # --- 1. DATA BASE ---
+  db:
+    image: postgres:15
+    container_name: postgres_seguro
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    volumes:
+      - ./API_DB/postgres_data:/var/lib/postgresql/data
+    restart: always
+
+  # --- 2. API DB ---
+  api-db:
+    build: ./API_DB
+    container_name: api_database
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+    restart: always
+
+  # --- 3. API WAQI REALTIME ---
   api_manager:
     build: ./API_Service
-    container_name: api_manager
+    container_name: api_manager_waqi
+    depends_on:
+      - api-db
     environment:
-      - API_TOKEN=${API_TOKEN}
+      - PYTHONUNBUFFERED=1
+      - WAQI_API_TOKEN=${WAQI_API_TOKEN} 
       - LONDON_BOUNDS=${LONDON_BOUNDS}
       - SCAN_INTERVAL=${SCAN_INTERVAL}
-    depends_on:
-      db_security:
-        condition: service_started 
-    networks:
-      - internal_network
+      - API_URL=http://api-db:8000/insertar-datos
+      - API_TOKEN_APIDB_REALTIME=${API_TOKEN_APIDB_REALTIME} 
+    restart: always
 
-  # 2. DB API 
-  db_security:
-    build: ./DB_Security
-    container_name: db_security
-    env_file: .env   
+  # --- 4. API OPENAQ HISTORICAL DATA ---
+  historical_data:
+    build: ./HistoricalData
+    container_name: historical_manager_openaq
     depends_on:
-      db:
-        condition: service_healthy 
-    networks:
-      - internal_network
-
-  # 3. DATA BASE
-  db:
-    image: postgres:15-alpine
-    container_name: postgres_db
-    env_file: .env
+      - api-db
     environment:
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASS}
-      POSTGRES_DB: ${DB_NAME}
-    
-    # --- HEALTHCHECK ---
-    healthcheck:
-      # See if PostGres is ready.
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
-      interval: 5s   
-      timeout: 5s    
-      retries: 5     
-    # ---------------------------------
+      - PYTHONUNBUFFERED=1
+      - OPENAQ_API_KEY=${OPENAQ_API_KEY}
+      - OPENAQ_BOUNDS=${OPENAQ_BOUNDS}
+      - API_URL=http://api-db:8000/insertar-datos
+      - API_TOKEN_APIDB_HISTORICAL=${API_TOKEN_APIDB_HISTORICAL}
+    restart: always
 
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - internal_network
-
-    # 4. TRANSFORMATION (DBT)
+  # --- 5. DBT ---
   dbt_transform:
-    build: ./DBT  
-    container_name: dbt_transform
-    working_dir: /app
-    volumes:
-      - ./DBT:/app          
-    environment:
-      - DB_USER=${DB_USER}
-      - DB_PASS=${DB_PASS}
-      - DB_NAME=${DB_NAME}
-      - DB_HOST=db        
-      - DBT_PROFILES_DIR=/app
+    build: ./DBT
+    container_name: dbt_london
     depends_on:
-      db:
-        condition: service_healthy
-    networks:
-      - internal_network
-    # We keep it turned on so we can enter and execute commands
-    entrypoint: ["tail", "-f", "/dev/null"]
-
-networks:
-  internal_network:
-
-volumes:
-  postgres_data:
+      - db
+    volumes:
+      - ./DBT:/dbt
+    environment:
+      - POSTGRES_HOST=db
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    restart: always
