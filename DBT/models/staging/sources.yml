@@ -1,0 +1,9 @@
+version: 2
+
+sources:
+  - name: london_source       # This group of data in dbt
+    database: "{{ env_var('POSTGRES_DB') }}"
+    schema: public
+    tables:
+      - name: registroaire # Name in API_DB of the table
+        description: "Raw table with WAQI and OpenAQ data ingested by Python"

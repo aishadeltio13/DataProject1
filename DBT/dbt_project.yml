@@ -18,4 +18,16 @@ clean-targets:
 
 models:
   air_project_london:
-    +materialized: view
+    # 1. STAGING 
+    staging:
+      +materialized: view
+      +tags: ["staging"]
+
+    # 2. INTERMEDIATE 
+    intermediate:
+      +materialized: ephemeral
+
+    # 3. MART
+    mart:
+      +materialized: table
+      +tags: ["production"]
