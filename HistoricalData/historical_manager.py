@@ -16,6 +16,11 @@ MI_API_KEY = os.getenv("API_TOKEN_APIDB_HISTORICAL")
 POLLUTANTS = {"pm25": 2, "pm10": 1, "no2": 5, "o3": 3}
 YEAR = 2025
 
+# --- DATA WANTED (REDUCED) ---
+TARGET_DAYS = [2, 7, 12, 17, 22, 27]       # 6 days per mont
+TARGET_HOURS = [0, 4, 8, 12, 16, 20]       # Every 4 hours
+
+
 session = requests.Session()
 session.headers.update({"X-API-Key": API_KEY})
 
@@ -52,7 +57,7 @@ def main():
         if not locs_resp: continue
         
         locations = locs_resp.get("results", [])
-        print(f"Encontradas {len(locations)} estaciones.", flush=True)
+        print(f"Founded {len(locations)} stations.", flush=True)
 
         for loc in locations:
             # 2. Search for sensors of each station
@@ -65,48 +70,63 @@ def main():
             
             unit = target['parameter'].get('units')
 
-            # 3. Download
+            # 3. Download (REDUCED STRATEGY)
             print(f"  > Processing {loc['name']} (ID: {loc['id']})...", flush=True)
             page = 1
             total_inserted = 0
             
-            while True:
-                m_resp = get_json(f"{BASE_URL}/sensors/{target['id']}/measurements", {
-                    "datetime_from": f"{YEAR}-01-01T00:00:00Z",
-                    "datetime_to": f"{YEAR}-12-31T23:59:59Z",
-                    "limit": 1000,
-                    "page": page
-                })
-                
-                if not m_resp or not m_resp.get("results"): break
-
-                for m in m_resp["results"]:
+            # 12 month
+            for month in range(1, 13):
+                # Days we want
+                for day in TARGET_DAYS:
                     
-                    # --- FORMAT DATE (RULES) ---
-                    # OpenAQ da: "2025-01-01T10:00:00Z"
-                    # API DB: "2025-01-01 10:00:00"
-                    raw_date = m['period']['datetimeFrom']['utc']
-                    clean_date = raw_date.replace("T", " ").replace("Z", "")
+                    # Exact day
+                    date_from = f"{YEAR}-{month:02d}-{day:02d}T00:00:00Z"
+                    date_to = f"{YEAR}-{month:02d}-{day:02d}T23:59:59Z"
 
-                    payload = {
-                        "source": "historical_data",
-                        "station_uid": int(target['id']),
-                        "station_name": str(loc['name']),
-                        "lat": float(loc['coordinates']['latitude']),
-                        "lon": float(loc['coordinates']['longitude']),
-                        "sensor_date": clean_date,  # Clean date
-                        "scraped_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                        "parameter": pol_name,
-                        "value": float(m['value']),
-                        "unit": str(unit) # API DB will check ('aqi' o 'µg/m³')
-                    }
+                    # Data from that day
+                    m_resp = get_json(f"{BASE_URL}/sensors/{target['id']}/measurements", {
+                        "datetime_from": date_from,
+                        "datetime_to": date_to,
+                        "limit": 100,
+                        "page": 1
+                    })
+                    
+                    if not m_resp or not m_resp.get("results"): break
 
-                    if enviar_a_la_api(payload):
-                        total_inserted += 1
+                    for m in m_resp["results"]:
+                        
+                        raw_date = m['period']['datetimeFrom']['utc']
+                        dt_obj = datetime.strptime(raw_date, "%Y-%m-%dT%H:%M:%SZ") # Object to see the time
+                        
+                        # Save if the time is in TARGET_HOURS
+                        if dt_obj.hour in TARGET_HOURS:
+                            
+                            # --- FORMAT DATE (RULES) ---
+                            # OpenAQ da: "2025-01-01T10:00:00Z"
+                            # API DB: "2025-01-01 10:00:00"
+                            clean_date = raw_date.replace("T", " ").replace("Z", "")
 
-                print(f"    Page {page}: {len(m_resp['results'])} read / {total_inserted} inserted.", flush=True)
-                page += 1
-                time.sleep(0.2) # Respeto a la API de OpenAQ
+                            payload = {
+                                "source": "historical_data",
+                                "station_uid": int(target['id']),
+                                "station_name": str(loc['name']),
+                                "lat": float(loc['coordinates']['latitude']),
+                                "lon": float(loc['coordinates']['longitude']),
+                                "sensor_date": clean_date,  # Clean date
+                                "scraped_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                                "parameter": pol_name,
+                                "value": float(m['value']),
+                                "unit": str(unit) 
+                            }
+
+                            if enviar_a_la_api(payload):
+                                total_inserted += 1
+                    
+                    # Princess pause
+                    time.sleep(0.05)
+
+            print(f"    Done. {total_inserted} records inserted (Reduced Strategy).", flush=True)
 
     print("FINISH PROCESS.", flush=True)
 
