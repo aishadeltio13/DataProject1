@@ -4,7 +4,8 @@ from fastapi import FastAPI, HTTPException, Depends, Header
 from sqlmodel import SQLModel, Field, Session, create_engine, select
 import os
 from datetime import datetime            
-from pydantic import field_validator     
+from pydantic import field_validator   
+from sqlalchemy import UniqueConstraint  
 
 # --- 1. CONFIGURATION ---
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -23,7 +24,12 @@ class RegistroAire(SQLModel, table=True):
     parameter: str
     value: float
     unit: str
-
+    
+    # Make sure in dowloads there ir no double data 
+    __table_args__ = (
+        UniqueConstraint("station_uid", "sensor_date", "parameter", name="registro_unico"),
+    )
+    
     # 1. Validate that latitude is within London (51.28 to 51.69)
     @field_validator('lat')
     @classmethod
