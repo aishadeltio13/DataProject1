@@ -15,10 +15,10 @@ renamed as(
         cast(sensor_date as timestamp)  as sensor_date,
         cast(scraped_at as timestamp)   as register_date,
         parameter,
-        greatest(0, value)          as value,
+        case when value >= 0 then value else 0 end  as value,    -- only accept positive values
         unit,
         -- Calculation of the AQI value = ((I_high - I_low) / (C_high - C_low)) * (C - C_low) + I_low
-        -- I: AQI index value [high and low are the limit values for each category (Good, Moderate, Unhealthy...)]
+        -- I: AQI index value [high and low are the limit values for each aqi_category (Good, Moderate, Unhealthy...)]
         -- C: contaminant value (µg/m3)
         case
             when unit = 'aqi' then value    -- if we already have an AQI value, we keep it, do not transform it.
@@ -59,23 +59,30 @@ renamed as(
                     else ((500.0 - 301.0) / (600.0 - 401.0)) * (value - 401.0) + 301.0
                 end
             else null
-        end as aqi_value
-        case    --quizás a partir de aquí, puede ir en intermediate
+        end as aqi_value,
+        --quizás a partir de aquí, puede ir en intermediate ------------------------------------------
+        case
             when aqi_value <= 50 then 'Good'
             when aqi_value <= 100 then 'Moderate'
             when aqi_value <= 150 then 'Sensitive Groups'
             when aqi_value <= 200 then 'Unhealthy'
             when aqi_value <= 300 then 'Very unhealthy'
             else 'Hazardous'
-        end as category
+        end as aqi_category,
         case
-            when category = 'Good'              then 'Air quality is satisfactory, and air pollution poses little or no risk.'
-            when category = 'Moderate'          then 'Air quality is acceptable. However, there may be a risk for some people, particularly those who are unusually sensitive to air pollution.'
-            when category = 'Sensitive Groups'  then 'Members of sensitive groups may experience health effects. The general public is less likely to be affected.'
-            when category = 'Unhealthy'         then 'Some members of the general public may experience health effects; members of sensitive groups may experience more serious health effects.'
-            when category = 'Very unhealthy'    then 'Health alert: The risk of health effects is increased for everyone.'
+            when aqi_category = 'Good'              then 'Air quality is satisfactory, and air pollution poses little or no risk.'
+            when aqi_category = 'Moderate'          then 'Air quality is acceptable. However, there may be a risk for some people, particularly those who are unusually sensitive to air pollution.'
+            when aqi_category = 'Sensitive Groups'  then 'Members of sensitive groups may experience health effects. The general public is less likely to be affected.'
+            when aqi_category = 'Unhealthy'         then 'Some members of the general public may experience health effects; members of sensitive groups may experience more serious health effects.'
+            when aqi_category = 'Very unhealthy'    then 'Health alert: The risk of health effects is increased for everyone.'
             else 'Health warning of emergency conditions: everyone is more likely to be affected.'
-        end as category_message
+        end as aqi_message,
+        
+        width_bucket(lat, 51.28, 51.69, 4)          as lat_bucket,   -- podemos parametrizar del .env -----------------
+        width_bucket(lon, -0.51, 0.33, 8)           as lon_bucket,
+        'Q_' || lat_bucket || '_' || lon_bucket     as area,
+
+
 
     from source
 )
