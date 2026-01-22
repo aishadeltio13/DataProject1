@@ -102,7 +102,7 @@ def main():
                             "page": 1
                         })
                         
-                        if not m_resp or not m_resp.get("results"): break
+                        if not m_resp or not m_resp.get("results"): continue
 
                         for m in m_resp["results"]:
                             
