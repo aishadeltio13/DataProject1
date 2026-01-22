@@ -24,18 +24,12 @@ renamed as(
             when unit = 'aqi' then value    -- if we already have an AQI value, we keep it, do not transform it.
             when parameter = 'pm25' then
                 case
-                    when value <= 12.0  -- Good:            I {0, 50}       C {0.0, 12.0}
-                        then ((50 - 0) / (12.0 - 0)) * (value - 0.0) + 0
-                    when value <= 35.4  -- Moderate:        I {51, 100}     C {12.1, 35.4}
-                        then ((100 - 51) / (35.4 - 12.1)) * (value - 12.1) + 51
-                    when value <= 55.4  -- Sensitive Groups:I {101, 150}    C {35.5, 55.4}
-                        then ((150 - 101) / (55.4 - 35.5)) * (value - 35.5) + 101
-                    when value <= 150.4 -- Unhealthy:       I {151, 200}    C {55.5, 150.4}
-                        then ((200 - 151) / (150.4 - 55.5)) * (value - 55.5) + 151
-                    when value <= 250.4 -- Very unhealthy:  I {201, 300}    C {150.5, 250.4}
-                        then ((300 - 201) / (250.4 - 150.5)) * (value - 150.5) + 201
-                    else                -- Hazardous:       I {301, 500}    C {250.5, 500.4}
-                        then ((500 - 301) / (500.4 - 250.5)) * (value - 250.5) + 301
+                    when value <= 12.0  then ((50 - 0) / (12.0 - 0)) * (value - 0.0) + 0
+                    when value <= 35.4  then ((100 - 51) / (35.4 - 12.1)) * (value - 12.1) + 51
+                    when value <= 55.4  then ((150 - 101) / (55.4 - 35.5)) * (value - 35.5) + 101
+                    when value <= 150.4 then ((200 - 151) / (150.4 - 55.5)) * (value - 55.5) + 151
+                    when value <= 250.4 then ((300 - 201) / (250.4 - 150.5)) * (value - 150.5) + 201
+                    else ((500 - 301) / (500.4 - 250.5)) * (value - 250.5) + 301
                 end
             when parameter = 'pm10' then
                 case
@@ -66,7 +60,22 @@ renamed as(
                 end
             else null
         end as aqi_value
-        
+        case    --quizás a partir de aquí, puede ir en intermediate
+            when aqi_value <= 50 then 'Good'
+            when aqi_value <= 100 then 'Moderate'
+            when aqi_value <= 150 then 'Sensitive Groups'
+            when aqi_value <= 200 then 'Unhealthy'
+            when aqi_value <= 300 then 'Very unhealthy'
+            else 'Hazardous'
+        end as category
+        case
+            when category = 'Good'              then 'Air quality is satisfactory, and air pollution poses little or no risk.'
+            when category = 'Moderate'          then 'Air quality is acceptable. However, there may be a risk for some people, particularly those who are unusually sensitive to air pollution.'
+            when category = 'Sensitive Groups'  then 'Members of sensitive groups may experience health effects. The general public is less likely to be affected.'
+            when category = 'Unhealthy'         then 'Some members of the general public may experience health effects; members of sensitive groups may experience more serious health effects.'
+            when category = 'Very unhealthy'    then 'Health alert: The risk of health effects is increased for everyone.'
+            else 'Health warning of emergency conditions: everyone is more likely to be affected.'
+        end as category_message
 
     from source
 )
