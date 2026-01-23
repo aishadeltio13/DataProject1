@@ -59,7 +59,7 @@ services:
     depends_on:
       - db
     volumes:
-      - ./DBT:/dbt
+      - ./DBT:/app
     environment:
       - POSTGRES_HOST=db
       - POSTGRES_USER=${POSTGRES_USER}
