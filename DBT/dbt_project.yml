@@ -25,7 +25,7 @@ models:
 
     # 2. INTERMEDIATE 
     intermediate:
-      +materialized: ephemeral
+      +materialized: view
 
     # 3. MART
     mart:
