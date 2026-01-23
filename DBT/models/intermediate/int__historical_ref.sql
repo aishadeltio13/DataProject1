@@ -13,6 +13,7 @@ area_calculations as (
     select
         area_code,     -- Use the cuadrants calculated in int__london__aqi_calculations
         parameter,     -- Separate each pollutant
+        extract(month from sensor_date) as sensor_month, --- Separate months 
         -- Statistical analysis
         avg(aqi_value)      as avg_aqi_zone,
         max(aqi_value)      as max_aqi_zone,
@@ -21,7 +22,7 @@ area_calculations as (
         stddev(aqi_value)   as stddev_aqi_zone,
         count(*)            as total_samples
     from historical_only
-    group by 1, 2
+    group by 1, 2, 3 
 )
 
 select * from area_calculations
