@@ -107,7 +107,7 @@ def main():
                         for m in m_resp["results"]:
                             
                             raw_date = m['period']['datetimeFrom']['utc']
-                            dt_obj = datetime.strptime(raw_date, "%Y-%m-%dT%H:%M:%SZ") # Object to see the time
+                            dt_obj = datetime.strptime(raw_date, "%Y-%m-%dT%H:%M:%SZ" ) # Object to see the time
                             
                             # Save if the time is in TARGET_HOURS
                             if dt_obj.hour in TARGET_HOURS:
