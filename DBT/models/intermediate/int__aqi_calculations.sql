@@ -1,5 +1,5 @@
 with staging as (
-    select * from {{ ref('stg__london_air_quality') }}
+    select * from {{ ref('stg__air_quality') }}
 ),
 
 -- STEP 1: AQI

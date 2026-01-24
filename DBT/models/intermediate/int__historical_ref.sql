@@ -1,6 +1,6 @@
 with all_calculated_data as (
     -- Read from model with AQI calculated
-    select * from {{ ref('int__london__aqi_calculations') }}
+    select * from {{ ref('int__aqi_calculations') }}
 ),
 
 historical_only as (
@@ -11,7 +11,7 @@ historical_only as (
 
 area_calculations as (
     select
-        area_code,     -- Use the cuadrants calculated in int__london__aqi_calculations
+        area_code,     -- Use the cuadrants calculated in int__aqi_calculations
         parameter,     -- Separate each pollutant
         extract(month from sensor_date) as sensor_month, --- Separate months 
         -- Statistical analysis
