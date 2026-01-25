@@ -13,8 +13,7 @@ renamed as (
         cast(sensor_date as timestamp) as sensor_date,
         cast(scraped_at as timestamp)  as register_date,
         parameter,
-        -- only accept positive values
-        case when value >= 0 then value else 0 end as measurement_value,
+        case when value >= 0 then value else 0 end as measurement_value,    -- only accept positive values
         unit
     from source
 )
