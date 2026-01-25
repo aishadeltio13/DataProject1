@@ -66,3 +66,21 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
     restart: always
+
+  # --- 6. GRAFAMA ---
+  grafana:
+    build: ./grafana
+    container_name: grafana_london
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./grafana/grafana_vis:/etc/grafana/grafana_vis
+    depends_on:
+      - db
+    environment:
+      # Pasamos las variables para que el datasource.yml las use
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    restart: always
+
