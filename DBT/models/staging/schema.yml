@@ -1,0 +1,35 @@
+version: 2
+
+models:
+  - name: stg__air_quality
+    columns:
+      - name: record_id
+        tests:
+          - unique
+          - not_null
+      - name: measurement_value
+        tests:
+          - not_null
+  - name: marts__alerts
+    description: "Final mart for the alerting system. Combines real-time data with historical registries"
+    columns:
+      - name: absolute_alert
+        description: >
+          Boolean flag based on WHO Air Quality Guidelines for the general public. 
+          It triggers when pollutant concentrations (µg/m³) exceed short-term exposure limits.
+        tests:
+          - not_null
+      - name: sensitive_alert
+        description: >
+          Boolean flag indicating risks for vulnerable populations (children, elderly, asthmatics). 
+          Thresholds are lower and more protective than the absolute alert levels.
+        tests:
+          - not_null
+      - name: relative_alert
+        description: "Boolean flag triggered when AQI is 2.5x standard deviations above the historical mean."
+        tests:
+          - not_null
+      - name: area_code
+        tests:
+          - not_null
+
