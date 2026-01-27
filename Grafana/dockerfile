@@ -1,7 +1,15 @@
 FROM grafana/grafana-oss:latest
 
+# Cambiamos a root para evitar problemas de permisos al instalar plugins
+USER root
+
+# Instalamos el plugin de mapas (útil para tu proyecto de Londres)
 RUN grafana-cli plugins install grafana-worldmap-panel
 
+# Volvemos al usuario por defecto de Grafana por seguridad
+USER grafana
+
+# Copiamos la configuración de provisioning (aunque el volumen de docker-compose manda sobre esto)
 COPY ./provisioning /etc/grafana/provisioning
 
 # http://localhost:3000 
