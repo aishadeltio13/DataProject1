@@ -46,293 +46,176 @@ def color_aqi(valor):
         return "Peligroso", "#7E0023"
 
 def obtener_estaciones_waqi():
-    url = f"https://api.waqi.info/map/bounds/?latlng={LONDON_BOUNDS}&token={WAQI_TOKEN}"
-
     try:
-        r = requests.get(url, timeout=10)
-        data = r.json()
-
-        if data["status"] != "ok":
-            print(f"Error WAQI: {data}")
-            return []
-
+        conn = psycopg2.connect(host=DB_HOST, port=DB_PORT, dbname=DB_NAME, user=DB_USER, password=DB_PASS)
+        cur = conn.cursor()
+        
+        # Leemos de tu capa de dbt (int__aqi_calculations)
+        query = """
+            SELECT DISTINCT ON (station_uid)
+                station_uid, station_name, lat, lon, aqi_value, aqi_category
+            FROM int__aqi_calculations
+            WHERE sensor_date > NOW() - INTERVAL '1 hour'
+            ORDER BY station_uid, sensor_date DESC
+        """
+        cur.execute(query)
+        rows = cur.fetchall()
+        cur.close(); conn.close()
+        
         estaciones = []
-        for e in data["data"]:
-            aqi = e.get("aqi", "-")
-            cat, col = color_aqi(aqi)
-
+        for r in rows:
+            # Usamos tu lógica de colores
+            _, col = color_aqi(r[4]) 
             estaciones.append({
-                "uid": e.get("uid"),
-                "nombre": e.get("station", {}).get("name", "Desconocida"),
-                "lat": e.get("lat"),
-                "lon": e.get("lon"),
-                "aqi": aqi,
-                "categoria": cat,
-                "color": col
+                "uid": r[0], "nombre": r[1], "lat": r[2], "lon": r[3],
+                "aqi": r[4], "categoria": r[5], "color": col
             })
-
-        print(f"[WAQI] {len(estaciones)} estaciones obtenidas")
         return estaciones
-
     except Exception as err:
-        print(f"WAQI Error: {err}")
+        print(f"Error en DB (estaciones): {err}")
         return []
 
 def obtener_detalle_waqi(uid):
-    url = f"https://api.waqi.info/feed/@{uid}/?token={WAQI_TOKEN}"
-
     try:
-        r = requests.get(url, timeout=10)
-        data = r.json()
-
-        if data["status"] != "ok":
-            return None
-
-        d = data["data"]
-        iaqi = d.get("iaqi", {})
-
-        return {
-            "nombre": d.get("city", {}).get("name", ""),
-            "aqi": d.get("aqi", "-"),
-            "pm25": iaqi.get("pm25", {}).get("v", "-"),
-            "pm10": iaqi.get("pm10", {}).get("v", "-"),
-            "no2": iaqi.get("no2", {}).get("v", "-"),
-            "o3": iaqi.get("o3", {}).get("v", "-"),
-            "dominante": d.get("dominentpol", "")
-        }
-
+        conn = psycopg2.connect(host=DB_HOST, port=DB_PORT, dbname=DB_NAME, user=DB_USER, password=DB_PASS)
+        cur = conn.cursor()
+        
+        query = """
+            SELECT station_name, parameter, measurement_value, aqi_value
+            FROM int__aqi_calculations
+            WHERE station_uid = %s
+            AND sensor_date > NOW() - INTERVAL '1 hour'
+        """
+        cur.execute(query, (uid,))
+        rows = cur.fetchall()
+        cur.close(); conn.close()
+        
+        if not rows: return None
+        detalle = {"nombre": rows[0][0], "pm25": "-", "no2": "-", "o3": "-", "pm10": "-"}
+        aqi_max = 0
+        for r in rows:
+            detalle[r[1]] = round(r[2], 2)
+            if r[3] > aqi_max: aqi_max = r[3]
+        
+        detalle["aqi"] = aqi_max
+        detalle["dominante"] = "Calculado por dbt"
+        return detalle
     except Exception as err:
-        print(f"Error detalle WAQI: {err}")
+        print(f"Error en DB (detalle): {err}")
         return None
 
 def obtener_historico_db(nombre_estacion):
+    """Read from int__aqi_calculations"""
     try:
-        conn = psycopg2.connect(
-            host=DB_HOST,
-            port=DB_PORT,
-            dbname=DB_NAME,
-            user=DB_USER,
-            password=DB_PASS
-        )
+        conn = psycopg2.connect(host=DB_HOST, port=DB_PORT, dbname=DB_NAME, user=DB_USER, password=DB_PASS)
         cur = conn.cursor()
-
+        # dbt: source -> data_origin | value -> aqi_value
         query = """
-            SELECT sensor_date, parameter, value, source
-            FROM registroaire
+            SELECT sensor_date, parameter, aqi_value, data_origin
+            FROM int__aqi_calculations
             WHERE station_name ILIKE %s
             AND sensor_date > NOW() - INTERVAL '60 days'
-            ORDER BY sensor_date DESC
-            LIMIT 1000
+            ORDER BY sensor_date DESC LIMIT 1000
         """
-
         cur.execute(query, (f"%{nombre_estacion}%",))
         rows = cur.fetchall()
-
-        cur.close()
-        conn.close()
-
+        cur.close(); conn.close()
         historico = []
         for row in rows:
             historico.append({
                 "fecha": row[0].strftime("%Y-%m-%d %H:%M") if row[0] else "",
-                "parameter": row[1],
-                "value": row[2],
-                "source": row[3]
+                "parameter": row[1], "value": row[2], "source": row[3]
             })
-
-        hist_count = sum(1 for h in historico if h["source"] == "historical_data")
-        realtime_count = sum(1 for h in historico if h["source"] == "realtime")
-        print(f"[DB] Estacion '{nombre_estacion}': {hist_count} históricos + {realtime_count} tiempo real")
-
         return historico
-
-    except Exception as err:
-        print(f"PostgreSQL Error: {err}")
-        return []
-
+    except Exception: return []
 
 def obtener_estadisticas_db():
+    """Read from int__aqi_calculations"""
     try:
-        conn = psycopg2.connect(
-            host=DB_HOST,
-            port=DB_PORT,
-            dbname=DB_NAME,
-            user=DB_USER,
-            password=DB_PASS
-        )
+        conn = psycopg2.connect(host=DB_HOST, port=DB_PORT, dbname=DB_NAME, user=DB_USER, password=DB_PASS)
         cur = conn.cursor()
-
         query = """
-            SELECT
-                source,
-                COUNT(*) as total,
-                MIN(sensor_date) as fecha_min,
-                MAX(sensor_date) as fecha_max,
-                COUNT(DISTINCT station_uid) as estaciones
-            FROM registroaire
-            GROUP BY source
+            SELECT data_origin, COUNT(*) as total, MIN(sensor_date), MAX(sensor_date), COUNT(DISTINCT station_uid)
+            FROM int__aqi_calculations
+            GROUP BY data_origin
         """
-
         cur.execute(query)
         rows = cur.fetchall()
-
-        cur.close()
-        conn.close()
-
+        cur.close(); conn.close()
         estadisticas = {}
         for row in rows:
             estadisticas[row[0]] = {
-                "total": row[1],
-                "fecha_min": row[2].strftime("%Y-%m-%d") if row[2] else "",
-                "fecha_max": row[3].strftime("%Y-%m-%d") if row[3] else "",
-                "estaciones": row[4]
+                "total": row[1], "fecha_min": row[2].strftime("%Y-%m-%d") if row[2] else "",
+                "fecha_max": row[3].strftime("%Y-%m-%d") if row[3] else "", "estaciones": row[4]
             }
-
         return estadisticas
-
-    except Exception as err:
-        print(f"Error PostgreSQL estadísticas: {err}")
-        return {}
-
+    except Exception: return {}
 
 def obtener_datos_historicos_mapa():
+    """Read from int__aqi_calculations"""
     try:
-        conn = psycopg2.connect(
-            host=DB_HOST,
-            port=DB_PORT,
-            dbname=DB_NAME,
-            user=DB_USER,
-            password=DB_PASS
-        )
+        conn = psycopg2.connect(host=DB_HOST, port=DB_PORT, dbname=DB_NAME, user=DB_USER, password=DB_PASS)
         cur = conn.cursor()
-
         query = """
-            SELECT
-                station_uid,
-                station_name,
-                AVG(lat) as lat,
-                AVG(lon) as lon,
-                AVG(value) as avg_value,
-                COUNT(*) as num_registros
-            FROM registroaire
-            WHERE source = 'historical_data'
-            AND parameter = 'pm25'
+            SELECT station_uid, station_name, AVG(lat), AVG(lon), AVG(aqi_value), COUNT(*)
+            FROM int__aqi_calculations
+            WHERE data_origin = 'historical_data' AND parameter = 'pm25'
             AND sensor_date > NOW() - INTERVAL '60 days'
-            GROUP BY station_uid, station_name
-            HAVING COUNT(*) > 5
+            GROUP BY station_uid, station_name HAVING COUNT(*) > 5
         """
-
         cur.execute(query)
         rows = cur.fetchall()
-
-        cur.close()
-        conn.close()
-
+        cur.close(); conn.close()
         estaciones = []
         for row in rows:
-            avg_value = row[4]
-            cat, col = color_aqi(int(avg_value) if avg_value else 0)
-
+            cat, col = color_aqi(int(row[4]) if row[4] else 0)
             estaciones.append({
-                "uid": row[0],
-                "nombre": row[1],
-                "lat": row[2],
-                "lon": row[3],
-                "aqi": int(avg_value) if avg_value else 0,
-                "num_registros": row[5],
-                "categoria": cat,
-                "color": col
+                "uid": row[0], "nombre": row[1], "lat": row[2], "lon": row[3],
+                "aqi": int(row[4]) if row[4] else 0, "num_registros": row[5],
+                "categoria": cat, "color": col
             })
-
-        print(f"[DB] {len(estaciones)} estaciones históricas para el mapa")
         return estaciones
-
-    except Exception as err:
-        print(f"Error obteniendo datos históricos para mapa: {err}")
-        return []
-
+    except Exception: return []
 
 def obtener_estadisticas_contaminantes():
+    """Read from de int__aqi_calculations"""
     try:
-        conn = psycopg2.connect(
-            host=DB_HOST,
-            port=DB_PORT,
-            dbname=DB_NAME,
-            user=DB_USER,
-            password=DB_PASS
-        )
+        conn = psycopg2.connect(host=DB_HOST, port=DB_PORT, dbname=DB_NAME, user=DB_USER, password=DB_PASS)
         cur = conn.cursor()
-
         query = """
-            SELECT
-                parameter,
-                AVG(value) as avg_value,
-                MIN(value) as min_value,
-                MAX(value) as max_value,
-                COUNT(*) as total_registros
-            FROM registroaire
-            WHERE source = 'historical_data'
-            AND sensor_date > NOW() - INTERVAL '60 days'
+            SELECT parameter, AVG(measurement_value), MIN(measurement_value), MAX(measurement_value), COUNT(*)
+            FROM int__aqi_calculations
+            WHERE data_origin = 'historical_data' AND sensor_date > NOW() - INTERVAL '60 days'
             GROUP BY parameter
         """
-
         cur.execute(query)
         rows = cur.fetchall()
-
-        cur.close()
-        conn.close()
-
-        stats = {}
-        for row in rows:
-            stats[row[0]] = {
-                "avg": round(row[1], 2),
-                "min": round(row[2], 2),
-                "max": round(row[3], 2),
-                "total": row[4]
-            }
-
-        return stats
-
-    except Exception as err:
-        print(f"Error obteniendo estadísticas de contaminantes: {err}")
-        return {}
+        cur.close(); conn.close()
+        return {r[0]: {"avg": round(r[1], 2), "min": round(r[2], 2), "max": round(r[3], 2), "total": r[4]} for r in rows}
+    except Exception: return {}
 
 
 def obtener_top_estaciones():
+    """Read from de int__aqi_calculations"""
     try:
-        conn = psycopg2.connect(
-            host=DB_HOST,
-            port=DB_PORT,
-            dbname=DB_NAME,
-            user=DB_USER,
-            password=DB_PASS
-        )
+        conn = psycopg2.connect(host=DB_HOST, port=DB_PORT, dbname=DB_NAME, user=DB_USER, password=DB_PASS)
         cur = conn.cursor()
-
         query = """
-            SELECT
-                station_name,
-                AVG(value) as avg_pm25
-            FROM registroaire
-            WHERE source = 'historical_data'
-            AND parameter = 'pm25'
+            SELECT station_name, AVG(aqi_value) as avg_aqi
+            FROM int__aqi_calculations
+            WHERE data_origin = 'historical_data' AND parameter = 'pm25'
             AND sensor_date > NOW() - INTERVAL '60 days'
-            GROUP BY station_name
-            ORDER BY avg_pm25 DESC
-            LIMIT 10
+            GROUP BY station_name ORDER BY avg_aqi DESC LIMIT 10
         """
-
         cur.execute(query)
         rows = cur.fetchall()
-
-        cur.close()
-        conn.close()
-
+        cur.close(); conn.close()
         return [(row[0], round(row[1], 2)) for row in rows]
+    except Exception: return []
 
-    except Exception as err:
-        print(f"Error obteniendo top estaciones: {err}")
-        return []
+
+
+
 
 def crear_mapa(estaciones):
     fig = go.Figure()
