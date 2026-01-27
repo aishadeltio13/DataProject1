@@ -114,3 +114,20 @@ services:
       - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
       - ALERT_CHECK_INTERVAL=${ALERT_CHECK_INTERVAL}
     restart: always
+
+      # --- 6. GRAFAMA ---
+  grafana:
+    build: ./grafana
+    container_name: grafana_london
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./grafana/grafana_vis:/etc/grafana/grafana_vis
+    depends_on:
+      - db
+    environment:
+      
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    restart: always
