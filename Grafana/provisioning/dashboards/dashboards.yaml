@@ -1,0 +1,12 @@
+apiVersion: 1
+
+providers:
+  - name: 'Dashboards_Londres'
+    orgId: 1
+    folder: ''
+    type: file
+    disableDeletion: false
+    editable: true
+    updateIntervalSeconds: 10 # Chequea cada 10s si has metido un archivo nuevo
+    options:
+      path: /etc/grafana/provisioning/dashboards

@@ -114,3 +114,23 @@ services:
       - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
       - ALERT_CHECK_INTERVAL=${ALERT_CHECK_INTERVAL}
     restart: always
+
+  # --- 6. GRAFANA ---
+  grafana:
+      build: ./Grafana
+      container_name: grafana_london
+      ports:
+        - "3000:3000"
+      volumes:
+        # Dashboards (JSON backup)
+        - ./grafana/provisioning:/etc/grafana/provisioning
+        - grafana_data:/var/lib/grafana
+      depends_on:
+        - db
+      environment:
+        - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER}
+        - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
+      restart: always
+
+volumes:
+  grafana_data:
