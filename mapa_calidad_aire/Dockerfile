@@ -19,3 +19,6 @@ EXPOSE 8050
 
 # Ejecutar aplicacion
 CMD ["python", "mapa_londres.py"]
+
+# http://localhost:8050
+
