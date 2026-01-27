@@ -2,20 +2,40 @@ version: 2
 
 models:
   - name: stg__air_quality
+    description: "Cleaning layer. Casts data types, renames columns, and filters sensor noise (negative values)."
     columns:
       - name: record_id
         tests:
           - unique
           - not_null
       - name: measurement_value
+        description: "Primary key for each air quality measurement."
+        tests:
+          - unique
+          - not_null
+
+  - name: int__london_aqi_calculations
+    description: "Intelligence layer. Computes AQI per pollutant and performs Spatial Clustering into 32 quadrants."
+    columns:
+      - name: aqi_value
+        description: "Computed AQI based on AQI US Scale standards (PM2.5, PM10, NO2, O3)."
+      - name: area_code
+        description: "Geographical quadrant ID (Q_Lat_Lon) used for spatial aggregation."
         tests:
           - not_null
+
+  - name: int__historical_ref
+    description: "Baseline layer. Calculates historical averages and standard deviations per month and area_code."
+    columns:
+      - name: historical_aqi_avg
+        description: "The monthly mean AQI used to detect relative anomalies."
+
   - name: marts__alerts
     description: "Final mart for the alerting system. Combines real-time data with historical registries"
     columns:
       - name: absolute_alert
         description: >
-          Boolean flag based on WHO Air Quality Guidelines for the general public. 
+          Boolean flag:True if pollution exceeds WHO safety guidelines for the general public.
           It triggers when pollutant concentrations (µg/m³) exceed short-term exposure limits.
         tests:
           - not_null
@@ -26,7 +46,9 @@ models:
         tests:
           - not_null
       - name: relative_alert
-        description: "Boolean flag triggered when AQI is 2.5x standard deviations above the historical mean."
+        description: >
+          Boolean flag: True if the current AQI is a statistical outlier
+          (> 2.5 Std Dev) above the historical mean for that zone/month.
         tests:
           - not_null
       - name: area_code
