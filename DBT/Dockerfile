@@ -12,8 +12,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-# Find profiles.yml
+RUN chmod +x run_dbt.sh
+
 ENV DBT_PROFILES_DIR=/app
 
-# Container on
-CMD ["tail", "-f", "/dev/null"]
+# Run the automatic script
+CMD ["./run_dbt.sh"]
