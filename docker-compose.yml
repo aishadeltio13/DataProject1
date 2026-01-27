@@ -9,6 +9,11 @@ services:
       - POSTGRES_DB=${POSTGRES_DB}
     volumes:
       - ./API_DB/postgres_data:/var/lib/postgresql/data
+    # healthcheck:
+    #   test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+    #   interval: 10s
+    #   timeout: 5s
+    #   retries: 5
     restart: always
 
   # --- 2. API DB ---
@@ -82,17 +87,22 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
       - WAQI_API_TOKEN=${WAQI_API_TOKEN}
+      # - LONDON_BOUNDS=${LONDON_BOUNDS}
     restart: always
 
   # --- 7. ALERT NOTIFIER (TELEGRAM) ---
+  # NOTE: When enabling the healthcheck in the db service, uncomment the depends_on block below
+  # depends_on:
+  #   db:
+  #     condition: service_healthy
+  #   dbt_transform:
+  #     condition: service_started
   alert-notifier:
     build: ./AlertNotifier
     container_name: alert_notifier_telegram
     depends_on:
-      db:
-        condition: service_healthy
-      dbt_transform:
-        condition: service_started
+      - db
+      - dbt_transform
     environment:
       - PYTHONUNBUFFERED=1
       - POSTGRES_HOST=db

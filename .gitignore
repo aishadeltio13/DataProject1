@@ -1,4 +1,7 @@
 .env
 API_DB/postgres_data/
 DBT/logs
-DBT/target 
+DBT/target
+DBT/.user.yml
+__pycache__/
+*.pyc
