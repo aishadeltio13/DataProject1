@@ -1,9 +1,7 @@
 FROM grafana/grafana-oss:latest
 
-# 1. Instalar plugins automáticamente (ejemplo: un panel de mapa)
 RUN grafana-cli plugins install grafana-worldmap-panel
 
-# 2. Copiar la configuración para que la DB se conecte sola
-COPY ./grafana_vis /etc/grafana/grafana_vis
+COPY ./provisioning /etc/grafana/provisioning
 
-# http://localhost:3000/login USER: ADMIN
+# http://localhost:3000 
