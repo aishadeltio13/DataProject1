@@ -50,12 +50,11 @@ def obtener_estaciones_waqi():
         conn = psycopg2.connect(host=DB_HOST, port=DB_PORT, dbname=DB_NAME, user=DB_USER, password=DB_PASS)
         cur = conn.cursor()
         
-        # Leemos de tu capa de dbt (int__aqi_calculations)
         query = """
             SELECT DISTINCT ON (station_uid)
                 station_uid, station_name, lat, lon, aqi_value, aqi_category
             FROM int__aqi_calculations
-            WHERE sensor_date > NOW() - INTERVAL '1 hour'
+            WHERE data_origin = 'realtime'
             ORDER BY station_uid, sensor_date DESC
         """
         cur.execute(query)
@@ -64,12 +63,12 @@ def obtener_estaciones_waqi():
         
         estaciones = []
         for r in rows:
-            # Usamos tu lógica de colores
             _, col = color_aqi(r[4]) 
             estaciones.append({
                 "uid": r[0], "nombre": r[1], "lat": r[2], "lon": r[3],
                 "aqi": r[4], "categoria": r[5], "color": col
             })
+        print(f"[DB] Mostrando {len(estaciones)} estaciones (última actualización disponible)")
         return estaciones
     except Exception as err:
         print(f"Error en DB (estaciones): {err}")
@@ -79,14 +78,20 @@ def obtener_detalle_waqi(uid):
     try:
         conn = psycopg2.connect(host=DB_HOST, port=DB_PORT, dbname=DB_NAME, user=DB_USER, password=DB_PASS)
         cur = conn.cursor()
-        
+
         query = """
+            WITH last_date AS (
+                SELECT MAX(sensor_date) as max_date 
+                FROM int__aqi_calculations 
+                WHERE station_uid = %s AND data_origin = 'realtime'
+            )
             SELECT station_name, parameter, measurement_value, aqi_value
-            FROM int__aqi_calculations
-            WHERE station_uid = %s
-            AND sensor_date > NOW() - INTERVAL '1 hour'
+            FROM int__aqi_calculations, last_date
+            WHERE station_uid = %s 
+            AND sensor_date = last_date.max_date
+            AND data_origin = 'realtime'
         """
-        cur.execute(query, (uid,))
+        cur.execute(query, (uid, uid))
         rows = cur.fetchall()
         cur.close(); conn.close()
         
@@ -212,7 +217,6 @@ def obtener_top_estaciones():
         cur.close(); conn.close()
         return [(row[0], round(row[1], 2)) for row in rows]
     except Exception: return []
-
 
 
 
