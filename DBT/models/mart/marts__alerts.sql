@@ -54,7 +54,7 @@ final_alerts as (
         -- 3. RELATIVE ALERT (when pollution is 2.5x higher than normal)
         case when realtime_aqi_value > (avg_aqi_zone + (2.5 * stddev_aqi_zone))
             then True else False
-        end as realtive_alert
+        end as relative_alert
     
     from joined
 )
