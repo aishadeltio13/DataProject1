@@ -16,9 +16,9 @@ DB_PASS = os.getenv("POSTGRES_PASSWORD")
 
 LONDON_LAT = 51.5074
 LONDON_LON = -0.1278
-UPDATE_INTERVAL_MS = 30 * 60 * 1000  # 30 minutes in milliseconds
+UPDATE_INTERVAL_MS = 30 * 60 * 1000
 
-# AQI color scale (EPA standard)
+# AQI color scale
 AQI_COLORSCALE = [
     [0, "#00E400"],
     [0.2, "#FFFF00"],
@@ -172,6 +172,11 @@ def get_station_detail(uid):
 def get_historical_data(station_name):
     """Fetch historical data for a station from int__aqi_calculations."""
     try:
+        # Clean station name for better matching (remove country suffix)
+        clean_name = station_name.replace(", United Kingdom", "").replace(" - ", " ").strip()
+        # Extract key words for matching
+        search_term = clean_name.split()[0] if clean_name else station_name
+
         conn = psycopg2.connect(
             host=DB_HOST, port=DB_PORT, dbname=DB_NAME,
             user=DB_USER, password=DB_PASS
@@ -180,11 +185,11 @@ def get_historical_data(station_name):
         query = """
             SELECT sensor_date, parameter, aqi_value, data_origin
             FROM int__aqi_calculations
-            WHERE station_name ILIKE %s
+            WHERE (station_name ILIKE %s OR station_name ILIKE %s)
             AND sensor_date > NOW() - INTERVAL '60 days'
             ORDER BY sensor_date DESC LIMIT 1000
         """
-        cur.execute(query, (f"%{station_name}%",))
+        cur.execute(query, (f"%{clean_name}%", f"%{search_term}%"))
         rows = cur.fetchall()
         cur.close()
         conn.close()
@@ -341,7 +346,7 @@ def create_realtime_map(stations):
     if not stations:
         fig.update_layout(
             mapbox=dict(
-                style="carto-positron",
+                style="open-street-map",
                 center=dict(lat=LONDON_LAT, lon=LONDON_LON),
                 zoom=10
             ),
@@ -366,7 +371,7 @@ def create_realtime_map(stations):
         else:
             sizes.append(min(40, 15 + int(aqi) / 8))
 
-    # Create hover text (Spanish for UI)
+    # Create hover text
     hover_texts = []
     for s in stations:
         hover_texts.append(
@@ -418,13 +423,12 @@ def create_realtime_map(stations):
 
     fig.update_layout(
         mapbox=dict(
-            style="carto-positron",
+            style="open-street-map",
             center=dict(lat=LONDON_LAT, lon=LONDON_LON),
             zoom=10
         ),
-        margin=dict(l=0, r=0, t=50, b=0),
+        margin=dict(l=0, r=0, t=10, b=0),
         height=600,
-        title=dict(text="Calidad del Aire en Londres - Tiempo Real", x=0.5),
         showlegend=False
     )
 
@@ -435,13 +439,16 @@ def create_historical_chart(historical_data, station_name):
     """Create historical trend chart for a station."""
     fig = go.Figure()
 
+    # Clean station name for display
+    display_name = station_name.replace(", United Kingdom", "")
+
     if not historical_data:
         fig.add_annotation(
             text="No hay datos historicos en PostgreSQL",
             x=0.5, y=0.5, xref="paper", yref="paper",
             showarrow=False, font=dict(size=14)
         )
-        fig.update_layout(height=350, title=f"Historico - {station_name}")
+        fig.update_layout(height=450, title=display_name)
         return fig
 
     # Group data by parameter and source
@@ -486,12 +493,13 @@ def create_historical_chart(historical_data, station_name):
     realtime_count = sum(1 for h in historical_data if h.get("source") == "realtime")
 
     fig.update_layout(
-        title=f"Historico - {station_name}<br><sub>Historical: {hist_count} | Realtime: {realtime_count}</sub>",
+        title=f"{display_name}<br><sub>Históricos: {hist_count} | Realtime: {realtime_count}</sub>",
         xaxis_title="Fecha",
-        yaxis_title="Valor (µg/m³ o AQI)",
-        height=350,
+        yaxis_title="AQI",
+        height=500,
         template="plotly_white",
-        legend=dict(orientation="h", y=1.15, x=0)
+        legend=dict(orientation="h", y=-0.25, x=0, xanchor="left"),
+        margin=dict(t=60, b=120)
     )
 
     return fig
@@ -509,7 +517,7 @@ def create_historical_map(stations):
         )
         fig.update_layout(
             mapbox=dict(
-                style="carto-positron",
+                style="open-street-map",
                 center=dict(lat=LONDON_LAT, lon=LONDON_LON),
                 zoom=10
             ),
@@ -530,7 +538,7 @@ def create_historical_map(stations):
     # Calculate marker sizes based on record count
     sizes = [min(40, 15 + rc / 10) for rc in record_counts]
 
-    # Create hover text (Spanish for UI)
+    # Create hover text
     hover_texts = []
     for s in stations:
         hover_texts.append(
@@ -572,13 +580,12 @@ def create_historical_map(stations):
 
     fig.update_layout(
         mapbox=dict(
-            style="carto-positron",
+            style="open-street-map",
             center=dict(lat=LONDON_LAT, lon=LONDON_LON),
             zoom=10
         ),
-        margin=dict(l=0, r=0, t=50, b=0),
+        margin=dict(l=0, r=0, t=10, b=0),
         height=600,
-        title=dict(text="Datos Históricos - Promedio PM2.5 (Últimos 60 días)", x=0.5),
         showlegend=False
     )
 
@@ -620,12 +627,12 @@ def create_pollutant_bar_chart(stats):
     ))
 
     fig.update_layout(
-        title="Estadísticas de Contaminantes (Histórico - 60 días)",
         xaxis_title="Contaminante",
         yaxis_title="Valor (µg/m³)",
         height=400,
         template="plotly_white",
-        legend=dict(x=0.8, y=1)
+        legend=dict(x=0.8, y=1),
+        margin=dict(t=30)
     )
 
     return fig
@@ -668,12 +675,12 @@ def create_top_stations_chart(top_stations):
     ))
 
     fig.update_layout(
-        title="Top 10 Estaciones - Mayor Promedio PM2.5 (Histórico)",
         xaxis_title="PM2.5 Promedio (µg/m³)",
         yaxis_title="",
         height=500,
         template="plotly_white",
-        yaxis=dict(autorange="reversed")
+        yaxis=dict(autorange="reversed"),
+        margin=dict(t=30)
     )
 
     return fig
@@ -687,11 +694,11 @@ app = Dash(__name__)
 app.title = "Mapa Calidad Aire - Londres"
 
 app.layout = html.Div([
-    # Header with logo and title
+    # Header
     html.Div([
         html.Img(
             src="/assets/Air_Watch.PNG",
-            style={"height": "90px", "marginRight": "20px", "verticalAlign": "middle"}
+            style={"height": "200px", "marginRight": "20px", "verticalAlign": "middle"}
         ),
         html.Span(
             "Mapa de Calidad del Aire - Londres",
@@ -704,7 +711,44 @@ app.layout = html.Div([
         style={"textAlign": "center", "color": "#7f8c8d", "marginBottom": "10px"}
     ),
 
-    # Legend (Spanish for UI)
+    # Telegram Join Button
+    html.A(
+        html.Div([
+            html.Div([
+                html.Img(
+                    src="https://cdn-icons-png.flaticon.com/512/2111/2111646.png",
+                    style={"height": "45px", "marginRight": "15px"}
+                ),
+                html.Div([
+                    html.Div("¡Recibe alertas de contaminación!", style={"fontSize": "1.3em", "fontWeight": "bold", "marginBottom": "3px"}),
+                    html.Div("Únete a nuestro canal de Telegram y mantente informado", style={"fontSize": "0.95em", "opacity": "0.9"})
+                ], style={"textAlign": "left"})
+            ], style={"display": "flex", "alignItems": "center", "justifyContent": "center"}),
+            html.Div("UNIRSE AHORA →", style={
+                "backgroundColor": "white",
+                "color": "#0088cc",
+                "padding": "10px 25px",
+                "borderRadius": "25px",
+                "fontWeight": "bold",
+                "marginTop": "12px",
+                "display": "inline-block",
+                "fontSize": "1em"
+            })
+        ], style={
+            "background": "linear-gradient(135deg, #229ED9 0%, #1DA1F2 50%, #0088cc 100%)",
+            "color": "white",
+            "padding": "20px 30px",
+            "borderRadius": "15px",
+            "textAlign": "center",
+            "marginBottom": "15px",
+            "boxShadow": "0 8px 25px rgba(0,136,204,0.4)"
+        }),
+        href="https://t.me/AirWatch_London",
+        target="_blank",
+        style={"textDecoration": "none", "display": "block"}
+    ),
+
+    # Legend
     html.Div([
         html.Span("Leyenda: ", style={"fontWeight": "bold"}),
         html.Span(" Bueno (0-50) ", style={"backgroundColor": "#00E400", "padding": "3px 8px", "margin": "2px"}),
@@ -732,7 +776,7 @@ app.layout = html.Div([
         html.Div([
             html.H4("🗺️ Mapa en Tiempo Real", style={"color": "#34495e", "marginBottom": "10px", "textAlign": "center"}),
             dcc.Graph(id="realtime-map", config={"scrollZoom": True})
-        ], style={"width": "68%", "display": "inline-block", "verticalAlign": "top"}),
+        ], style={"width": "75%", "display": "inline-block", "verticalAlign": "top"}),
 
         html.Div([
             html.Div(
@@ -744,14 +788,16 @@ app.layout = html.Div([
                 style={
                     "padding": "15px",
                     "backgroundColor": "#f8f9fa",
-                    "borderRadius": "10px",
-                    "marginBottom": "15px"
+                    "borderRadius": "10px"
                 }
-            ),
-            html.H4("📈 Historial de Estación", style={"color": "#34495e", "marginBottom": "10px", "textAlign": "center"}),
-            dcc.Graph(id="historical-chart")
-        ], style={"width": "30%", "display": "inline-block", "verticalAlign": "top", "marginLeft": "2%"})
+            )
+        ], style={"width": "23%", "display": "inline-block", "verticalAlign": "top", "marginLeft": "2%"})
     ]),
+
+    html.Div([
+        html.H4("📈 Historial de Estación", style={"color": "#34495e", "marginBottom": "10px", "marginTop": "20px", "textAlign": "center"}),
+        dcc.Graph(id="historical-chart")
+    ], style={"marginBottom": "20px"}),
 
     html.Hr(style={"marginTop": "40px", "marginBottom": "40px"}),
 
@@ -761,7 +807,7 @@ app.layout = html.Div([
     ),
 
     html.Div([
-        html.H4("🗺️ Promedios de Contaminación por Estación (Últimos 30 días)", style={"color": "#34495e", "marginBottom": "10px", "textAlign": "center"}),
+        html.H4("🗺️ Promedios de Contaminación por Estación (Últimos 60 días)", style={"color": "#34495e", "marginBottom": "10px", "textAlign": "center"}),
         dcc.Graph(id="historical-map", config={"scrollZoom": True})
     ], style={"marginBottom": "30px"}),
 
@@ -821,37 +867,63 @@ def update_dashboard(n):
 
     db_stats = get_db_statistics()
 
-    # Build stats panel (Spanish for UI)
-    stats_components = [
+    # Card style
+    card_style = {
+        "display": "inline-block",
+        "padding": "15px 20px",
+        "margin": "5px",
+        "borderRadius": "10px",
+        "textAlign": "center",
+        "minWidth": "120px",
+        "boxShadow": "0 2px 4px rgba(0,0,0,0.1)"
+    }
+
+    # Build stats panel
+    realtime_cards = [
         html.Div([
-            html.H4("📡 Tiempo Real (WAQI)", style={"margin": "5px 0"}),
-            html.Span(f"Total: {total} estaciones | ", style={"fontWeight": "bold"}),
-            html.Span(f"Bueno: {good_count} | ", style={"color": "#00E400", "fontWeight": "bold"}),
-            html.Span(f"Moderado: {moderate_count} | ", style={"color": "#f39c12", "fontWeight": "bold"}),
-            html.Span(f"Sensibles: {sensitive_count} | ", style={"color": "#FF7E00", "fontWeight": "bold"}),
-            html.Span(f"Insalubre: {unhealthy_count}", style={"color": "#e74c3c", "fontWeight": "bold"})
-        ], style={"marginBottom": "15px"}),
+            html.Div(f"{total}", style={"fontSize": "1.8em", "fontWeight": "bold", "color": "#2c3e50"}),
+            html.Div("Estaciones", style={"fontSize": "0.85em", "color": "#7f8c8d"})
+        ], style={**card_style, "backgroundColor": "#ecf0f1"}),
+        html.Div([
+            html.Div(f"{good_count}", style={"fontSize": "1.8em", "fontWeight": "bold", "color": "#27ae60"}),
+            html.Div("Bueno", style={"fontSize": "0.85em", "color": "#7f8c8d"})
+        ], style={**card_style, "backgroundColor": "#d5f4e6"}),
+        html.Div([
+            html.Div(f"{moderate_count}", style={"fontSize": "1.8em", "fontWeight": "bold", "color": "#f39c12"}),
+            html.Div("Moderado", style={"fontSize": "0.85em", "color": "#7f8c8d"})
+        ], style={**card_style, "backgroundColor": "#fef9e7"}),
+        html.Div([
+            html.Div(f"{sensitive_count}", style={"fontSize": "1.8em", "fontWeight": "bold", "color": "#e67e22"}),
+            html.Div("Sensibles", style={"fontSize": "0.85em", "color": "#7f8c8d"})
+        ], style={**card_style, "backgroundColor": "#fdebd0"}),
+        html.Div([
+            html.Div(f"{unhealthy_count}", style={"fontSize": "1.8em", "fontWeight": "bold", "color": "#e74c3c"}),
+            html.Div("Insalubre", style={"fontSize": "0.85em", "color": "#7f8c8d"})
+        ], style={**card_style, "backgroundColor": "#fadbd8"}),
     ]
 
+    stats_components = [html.Div(realtime_cards, style={"textAlign": "center", "marginBottom": "15px"})]
+
+    # Database stats row
+    db_cards = []
     if "historical_data" in db_stats:
         hist = db_stats["historical_data"]
-        stats_components.append(html.Div([
-            html.H4("📊 Datos Históricos (OpenAQ)", style={"margin": "5px 0"}),
-            html.Span(f"Total: {hist['total']:,} registros | ", style={"fontWeight": "bold"}),
-            html.Span(f"Estaciones: {hist['stations']} | ", style={"fontWeight": "bold"}),
-            html.Span(f"Desde: {hist['date_min']} ", style={"color": "#7f8c8d"}),
-            html.Span(f"hasta {hist['date_max']}", style={"color": "#7f8c8d"})
-        ], style={"marginBottom": "15px"}))
+        db_cards.append(html.Div([
+            html.Div("📊 Históricos", style={"fontSize": "0.9em", "fontWeight": "bold", "marginBottom": "5px"}),
+            html.Div(f"{hist['total']:,}", style={"fontSize": "1.5em", "fontWeight": "bold", "color": "#3498db"}),
+            html.Div(f"{hist['stations']} estaciones", style={"fontSize": "0.8em", "color": "#7f8c8d"})
+        ], style={**card_style, "backgroundColor": "#ebf5fb"}))
 
     if "realtime" in db_stats:
         rt = db_stats["realtime"]
-        stats_components.append(html.Div([
-            html.H4("💾 Datos Almacenados (Realtime)", style={"margin": "5px 0"}),
-            html.Span(f"Total: {rt['total']:,} registros | ", style={"fontWeight": "bold"}),
-            html.Span(f"Estaciones: {rt['stations']} | ", style={"fontWeight": "bold"}),
-            html.Span(f"Desde: {rt['date_min']} ", style={"color": "#7f8c8d"}),
-            html.Span(f"hasta {rt['date_max']}", style={"color": "#7f8c8d"})
-        ]))
+        db_cards.append(html.Div([
+            html.Div("💾 Almacenados", style={"fontSize": "0.9em", "fontWeight": "bold", "marginBottom": "5px"}),
+            html.Div(f"{rt['total']:,}", style={"fontSize": "1.5em", "fontWeight": "bold", "color": "#9b59b6"}),
+            html.Div(f"{rt['stations']} estaciones", style={"fontSize": "0.8em", "color": "#7f8c8d"})
+        ], style={**card_style, "backgroundColor": "#f5eef8"}))
+
+    if db_cards:
+        stats_components.append(html.Div(db_cards, style={"textAlign": "center"}))
 
     stats_panel = html.Div(stats_components, style={
         "backgroundColor": "#f8f9fa",
@@ -893,7 +965,7 @@ def on_station_click(click_data):
     hist_count = sum(1 for h in historical if h.get("source") == "historical_data")
     realtime_count = sum(1 for h in historical if h.get("source") == "realtime")
 
-    # Build info panel (Spanish for UI)
+    # Build info panel
     if detail:
         category, color = get_aqi_color(detail["aqi"])
         panel = [
@@ -917,34 +989,39 @@ def on_station_click(click_data):
             html.P([html.B("O3: "), f"{detail['o3']}"]),
             html.Hr(),
             html.P(f"Dominante: {detail['dominant'].upper()}" if detail['dominant'] else ""),
-            html.Hr(),
-            html.H4("Base de Datos PostgreSQL", style={"fontSize": "1em", "marginTop": "10px"}),
-            html.P([
-                html.Span("📊 Históricos (OpenAQ): ", style={"fontWeight": "bold"}),
-                html.Span(f"{hist_count} registros", style={"color": "#3498DB"})
-            ]),
-            html.P([
-                html.Span("📡 Realtime (WAQI): ", style={"fontWeight": "bold"}),
-                html.Span(f"{realtime_count} registros", style={"color": "#E74C3C"})
-            ]),
-            html.P(f"Total: {len(historical)} registros", style={"fontSize": "0.9em", "color": "#7f8c8d"})
         ]
+        # Add database stats section only if there's data
+        if hist_count > 0 or realtime_count > 0:
+            panel.append(html.Hr())
+            panel.append(html.H4("📂 Datos en PostgreSQL", style={"fontSize": "1em", "marginTop": "10px"}))
+            if hist_count > 0:
+                panel.append(html.Div([
+                    html.Span("📊 Históricos: ", style={"fontWeight": "bold"}),
+                    html.Span(f"{hist_count}", style={"color": "#3498DB", "fontWeight": "bold"})
+                ], style={"padding": "5px 10px", "backgroundColor": "#e8f4f8", "borderRadius": "5px", "marginBottom": "5px"}))
+            if realtime_count > 0:
+                panel.append(html.Div([
+                    html.Span("📡 Realtime: ", style={"fontWeight": "bold"}),
+                    html.Span(f"{realtime_count}", style={"color": "#E74C3C", "fontWeight": "bold"})
+                ], style={"padding": "5px 10px", "backgroundColor": "#fdf2f2", "borderRadius": "5px"}))
     else:
         panel = [
-            html.H3(name),
-            html.P("No se pudo obtener detalle de WAQI"),
-            html.Hr(),
-            html.H4("Base de Datos PostgreSQL", style={"fontSize": "1em"}),
-            html.P([
-                html.Span("📊 Históricos: ", style={"fontWeight": "bold"}),
-                html.Span(f"{hist_count} registros", style={"color": "#3498DB"})
-            ]),
-            html.P([
-                html.Span("📡 Realtime: ", style={"fontWeight": "bold"}),
-                html.Span(f"{realtime_count} registros", style={"color": "#E74C3C"})
-            ]),
-            html.P(f"Total: {len(historical)} registros")
+            html.H3(name, style={"color": "#2c3e50"}),
+            html.P("Detalles no disponibles", style={"color": "#7f8c8d"})
         ]
+        if hist_count > 0 or realtime_count > 0:
+            panel.append(html.Hr())
+            panel.append(html.H4("📂 Datos en PostgreSQL", style={"fontSize": "1em"}))
+            if hist_count > 0:
+                panel.append(html.Div([
+                    html.Span("📊 Históricos: ", style={"fontWeight": "bold"}),
+                    html.Span(f"{hist_count}", style={"color": "#3498DB", "fontWeight": "bold"})
+                ], style={"padding": "5px 10px", "backgroundColor": "#e8f4f8", "borderRadius": "5px", "marginBottom": "5px"}))
+            if realtime_count > 0:
+                panel.append(html.Div([
+                    html.Span("📡 Realtime: ", style={"fontWeight": "bold"}),
+                    html.Span(f"{realtime_count}", style={"color": "#E74C3C", "fontWeight": "bold"})
+                ], style={"padding": "5px 10px", "backgroundColor": "#fdf2f2", "borderRadius": "5px"}))
 
     fig = create_historical_chart(historical, name)
 
