@@ -75,22 +75,23 @@ services:
       - POSTGRES_DB=${POSTGRES_DB}
     restart: always
 
-    # --- 6. MAPA PLOTLY (DASHBOARD) ---
+  # --- 6. MAPA PLOTLY (DASHBOARD) ---
   mapa_plotly:
     build: ./mapa_calidad_aire
     container_name: mapa_calidad_aire
     ports:
       - "8050:8050"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+      dbt_transform:
+        condition: service_started
     environment:
       - POSTGRES_HOST=db
       - POSTGRES_PORT=5432
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
-      - WAQI_API_TOKEN=${WAQI_API_TOKEN}
-      - LONDON_BOUNDS=${LONDON_BOUNDS}
     restart: always
 
   # --- 7. ALERT NOTIFIER (TELEGRAM) ---
