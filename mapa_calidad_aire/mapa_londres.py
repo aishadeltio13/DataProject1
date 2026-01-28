@@ -39,6 +39,25 @@ PARAM_COLORS = {
 # DATABASE FUNCTIONS
 # =============================================================================
 
+def wait_for_database(max_retries=30, retry_interval=2):
+    """Wait for PostgreSQL database to be ready before proceeding."""
+    import time
+    for attempt in range(max_retries):
+        try:
+            conn = psycopg2.connect(
+                host=DB_HOST, port=DB_PORT, dbname=DB_NAME,
+                user=DB_USER, password=DB_PASS
+            )
+            conn.close()
+            print(f"[DB] Connected to PostgreSQL database successfully.")
+            return True
+        except Exception as e:
+            print(f"[DB] Attempt {attempt + 1}/{max_retries}: Database not ready - {e}")
+            time.sleep(retry_interval)
+    print("[DB] Could not connect to database after maximum retries.")
+    return False
+
+
 def get_aqi_color(value):
     """Returns category (Spanish for UI) and color based on AQI value."""
     if value is None or value == "-":
@@ -944,6 +963,13 @@ if __name__ == "__main__":
     print("DATA SOURCES:")
     print("  - Realtime: WAQI API (api.waqi.info)")
     print("  - Historical: DBT (int__aqi_calculations)")
+    print()
+
+    # Wait for database to be ready before starting
+    if not wait_for_database():
+        print("[ERROR] Could not connect to database. Exiting.")
+        exit(1)
+
     print()
     print("Open in browser: http://127.0.0.1:8050")
     print("Press Ctrl+C to stop")
