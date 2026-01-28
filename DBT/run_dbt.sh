@@ -14,11 +14,11 @@ dbt run --select mart
 dbt test || echo "Some tests failed"
 echo "Initial DBT run completed!"
 
-# Infinite loop running every 10 minutes
+# Infinite loop running every 30 minutes
 while true; do
     echo ""
     echo "Waiting 30 minutes for next run..."
-    sleep 180
+    sleep 1800
     
     echo "🚀 [$(date '+%Y-%m-%d %H:%M:%S')] Starting DBT run..."
     

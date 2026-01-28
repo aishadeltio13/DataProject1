@@ -17,4 +17,4 @@ RUN chmod +x run_dbt.sh
 ENV DBT_PROFILES_DIR=/app
 
 # Run the automatic script
-CMD ["./run_dbt.sh"]
+CMD ["/bin/bash", "/app/run_dbt.sh"]
