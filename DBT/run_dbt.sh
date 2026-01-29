@@ -17,8 +17,8 @@ echo "Initial DBT run completed!"
 # Infinite loop running every 30 minutes
 while true; do
     echo ""
-    echo "Waiting 30 minutes for next run..."
-    sleep 1800
+    echo "Waiting 38 minutes for next run..."
+    sleep 2280    
     
     echo "🚀 [$(date '+%Y-%m-%d %H:%M:%S')] Starting DBT run..."
     
