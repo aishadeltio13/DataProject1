@@ -175,8 +175,8 @@ El sistema envía notificaciones a Telegram cuando:
 | Tipo | Condición | Ejemplo |
 |------|-----------|---------|
 | 🔴 **Crítica** | Supera límites OMS | PM2.5 > 25 µg/m³ |
-| 🟠 **Sensible** | Riesgo para asmáticos, niños, ancianos | PM2.5 > 15 µg/m³ |
-| 🟡 **Anomalía** | Pico inusual vs histórico | 2.5x por encima del promedio |
+| 🟠 **Sensible** | Riesgo para población de riesgo, asmáticos, niños, ancianos | PM2.5 > 15 µg/m³ |
+| 🟡 **Anomalía** | Pico inusual vs histórico | (desviación estándar) x2.5 por encima del promedio |
 
 **Frecuencia**: cada 30 minutos (configurable en `.env`)
 
