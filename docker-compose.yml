@@ -115,7 +115,7 @@ services:
       - ALERT_CHECK_INTERVAL=${ALERT_CHECK_INTERVAL}
     restart: always
 
-  # --- 6. GRAFANA ---
+  # --- 8. GRAFANA ---
   grafana:
       build: ./Grafana
       container_name: grafana_london

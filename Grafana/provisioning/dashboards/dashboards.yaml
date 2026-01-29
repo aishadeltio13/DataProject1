@@ -7,6 +7,6 @@ providers:
     type: file
     disableDeletion: false
     editable: true
-    updateIntervalSeconds: 10 # Chequea cada 10s si has metido un archivo nuevo
+    updateIntervalSeconds: 10 # Check every 10 seconds if you have added a new file
     options:
       path: /etc/grafana/provisioning/dashboards
