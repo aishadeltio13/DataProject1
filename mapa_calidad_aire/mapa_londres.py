@@ -346,7 +346,7 @@ def create_realtime_map(stations):
     if not stations:
         fig.update_layout(
             mapbox=dict(
-                style="open-street-map",
+                style="carto-positron",
                 center=dict(lat=LONDON_LAT, lon=LONDON_LON),
                 zoom=10
             ),
@@ -393,15 +393,19 @@ def create_realtime_map(stations):
 
     # Add density heatmap layer
     if heatmap_lats:
+        # Calculate dynamic zmax based on actual data (with minimum of 100)
+        max_aqi = max(heatmap_aqis) if heatmap_aqis else 100
+        dynamic_zmax = max(100, max_aqi * 1.5)
+
         fig.add_trace(go.Densitymapbox(
             lat=heatmap_lats,
             lon=heatmap_lons,
             z=heatmap_aqis,
-            radius=35,
+            radius=50,
             colorscale=AQI_COLORSCALE,
             zmin=0,
-            zmax=300,
-            opacity=0.5,
+            zmax=dynamic_zmax,
+            opacity=0.6,
             showscale=True,
             colorbar=dict(title="AQI", x=0.01, xanchor="left"),
             hoverinfo="skip"
@@ -423,7 +427,7 @@ def create_realtime_map(stations):
 
     fig.update_layout(
         mapbox=dict(
-            style="open-street-map",
+            style="carto-positron",
             center=dict(lat=LONDON_LAT, lon=LONDON_LON),
             zoom=10
         ),
@@ -517,7 +521,7 @@ def create_historical_map(stations):
         )
         fig.update_layout(
             mapbox=dict(
-                style="open-street-map",
+                style="carto-positron",
                 center=dict(lat=LONDON_LAT, lon=LONDON_LON),
                 zoom=10
             ),
@@ -580,7 +584,7 @@ def create_historical_map(stations):
 
     fig.update_layout(
         mapbox=dict(
-            style="open-street-map",
+            style="carto-positron",
             center=dict(lat=LONDON_LAT, lon=LONDON_LON),
             zoom=10
         ),
