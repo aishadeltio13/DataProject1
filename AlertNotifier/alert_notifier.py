@@ -21,10 +21,10 @@ TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "")
 CHECK_INTERVAL_SECONDS = int(os.getenv("ALERT_CHECK_INTERVAL", "1800"))
 
 WHO_LIMITS = {
-    'pm25': 15,
-    'pm10': 45,
-    'no2': 25,
-    'o3': 100
+    'pm25': 25,
+    'pm10': 50,
+    'no2': 200,
+    'o3': 120
 }
 
 last_alerts_sent = {}
