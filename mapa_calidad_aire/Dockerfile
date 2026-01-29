@@ -11,8 +11,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copiar codigo
+# Copiar codigo y assets
 COPY mapa_londres.py .
+COPY assets/ ./assets/
 
 # Puerto de Dash
 EXPOSE 8050

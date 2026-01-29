@@ -1,4 +1,5 @@
 .env
+API_DB/.env
 API_DB/postgres_data/
 DBT/logs
 DBT/target

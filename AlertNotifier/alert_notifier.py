@@ -182,6 +182,7 @@ def format_alert_message(alerts):
             message += f"  📈 {pollutant}: {value:.1f} µg/m³ (2.5x above average)\n"
             message += f"     Station: {station}\n\n"
 
+    # TODO: Replace localhost with server IP/domain in production
     message += "\n🔗 View real-time map: http://localhost:8050"
 
     return message
