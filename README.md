@@ -133,16 +133,7 @@ docker-compose up -d
 
 ---
 
-## 🔑 Acceso a los Servicios
-
-| Servicio | URL | Credenciales |
-|----------|-----|--------------|
-| 🗺️ **Mapa Plotly/Dash** | http://localhost:8050 | Acceso público |
-| 📊 **Grafana** | http://localhost:3000 | Definidas en `.env` |
-
----
-
-## 🎯 Capas de DBT
+## 🎯 Transformación (Capas de DBT)
 
 El proyecto usa 3 capas de transformación:
 
@@ -165,6 +156,15 @@ Genera 3 tipos de alertas:
 - **Absoluta**: supera límites OMS (ej: PM2.5 > 25 µg/m³)
 - **Sensible**: niveles peligrosos para grupos vulnerables
 - **Relativa**: valor 2.5x mayor que la media histórica de esa zona
+
+---
+
+## 🔑 Visualización - Acceso a los Servicios 
+
+| Servicio | URL | Credenciales |
+|----------|-----|--------------|
+| 🗺️ **Mapa Plotly/Dash** | http://localhost:8050 | Acceso público |
+| 📊 **Grafana** | http://localhost:3000 | Definidas en `.env` |
 
 ---
 
