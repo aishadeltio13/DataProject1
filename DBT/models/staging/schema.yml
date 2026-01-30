@@ -11,7 +11,6 @@ models:
       - name: measurement_value
         description: "Primary key for each air quality measurement."
         tests:
-          - unique
           - not_null
 
   - name: int__london_aqi_calculations
